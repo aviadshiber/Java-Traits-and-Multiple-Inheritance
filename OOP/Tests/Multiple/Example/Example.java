@@ -16,7 +16,7 @@ public class Example {
         try {
             I3 obj = (I3) generator.generateMultipleClass(I3.class);
 
-            Arrays.stream(I2.class.getAnnotations()).forEach(clazz-> System.out.println(clazz));
+           // Arrays.stream(I2.class.getAnnotations()).forEach(clazz-> System.out.println(clazz));
 
             Assert.assertEquals("C1 : f", obj.f());
             obj.g();
