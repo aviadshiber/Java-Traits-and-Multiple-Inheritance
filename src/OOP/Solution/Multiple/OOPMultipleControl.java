@@ -67,32 +67,45 @@ public class OOPMultipleControl {
             throws OOPMultipleException {
 
 
-        Set<Method> methodSet= new HashSet<>();
-        validateCoincidentalAmbiguity(interfaceClass,methodName,args);
-        //TODO: no collisions were found so we need to find the best match. what is a best match?
-
+        List<Method> filteredMethods=validateCoincidentalAmbiguity(interfaceClass,methodName,args);
+        //TODO: no collisions was found so we need to find the best match. what is a best match?
+        Method bestMatch=getBestMatch(filteredMethods);
 
         return null;
     }
 
-    private void validateCoincidentalAmbiguity(Class<?> interfaceClass
+    private Method getBestMatch(List<Method> filteredMethods) {
+        return null;
+    }
+
+    private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass
             ,String methodName,Object... args) throws OOPCoincidentalAmbiguity {
         Class<?>[] superClasses=interfaceClass.getInterfaces();
-        for(Class<?> superClass : superClasses){
+        List<Method> filteredByNameAndArguments= new ArrayList<>();
+        HashMap<Method,Class<?>> classMap=new HashMap<>();
+       for(Class<?> superClass : superClasses){
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
+            //for later use we need to map each method to a it's class
+            superClassMethods.forEach(m-> classMap.put(m,superClass));
             Stream<Method>  filteredByName= filterByMethodName(methodName,superClassMethods);
-            final List<Method> filteredByNameAndArguments=filterByArguments(filteredByName,args);
-            final Set<Method> collisions=getCollidedMethods(filteredByNameAndArguments);
-
-               if(collisions.size()>0) {
-                      Collection<Pair<Class<?>,Method>> pairs=new ArrayList<>();
-                      //warp it as pairs
-                      collisions.stream().forEach(c-> pairs.add(new Pair<>(superClass,c)));
-                      throw new OOPCoincidentalAmbiguity(pairs);
-               }
+            filteredByNameAndArguments.addAll( filterByArguments(filteredByName,args));
+        }
+        //now we have collected all the methods, so we search for collisions
+        final Set<Method> collisions=getCollidedMethods(filteredByNameAndArguments);
+        //if we found one by now then we throw an exception
+        if(collisions.size()>0){
+                Collection<Pair<Class<?>,Method>> pairs=new HashSet<>();
+                //we warp it as a pair before throwing
+                collisions.stream().forEach(m-> pairs.add(new Pair<>(classMap.get(m),m)));
+                throw new OOPCoincidentalAmbiguity(pairs);
         }
 
+
+        //no collisions were found so we return what we found so far
+        return filteredByNameAndArguments;
     }
+
+
 
     private Set<Method> getCollidedMethods(List<Method> methodList) {
         /**
