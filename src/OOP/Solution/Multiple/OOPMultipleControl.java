@@ -69,12 +69,14 @@ public class OOPMultipleControl {
 
         List<Method> filteredMethods=validateCoincidentalAmbiguity(interfaceClass,methodName,args);
         //TODO: no collisions was found so we need to find the best match. what is a best match?
-        Method bestMatch=getBestMatch(filteredMethods);
+        //1 prefer literal on polymorphism
+        Method bestMatch=getBestMatch(filteredMethods,args);
 
-        return null;
+        return bestMatch;
     }
 
-    private Method getBestMatch(List<Method> filteredMethods) {
+    private Method getBestMatch(List<Method> filteredMethods, Object... args) {
+        //TODO: find the shortest path of arguments to the actual method arguments(args)
         return null;
     }
 
@@ -82,7 +84,9 @@ public class OOPMultipleControl {
             ,String methodName,Object... args) throws OOPCoincidentalAmbiguity {
         Class<?>[] superClasses=interfaceClass.getInterfaces();
         List<Method> filteredByNameAndArguments= new ArrayList<>();
+        //match each method to their classes
         HashMap<Method,Class<?>> classMap=new HashMap<>();
+        //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
        for(Class<?> superClass : superClasses){
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
             //for later use we need to map each method to a it's class
