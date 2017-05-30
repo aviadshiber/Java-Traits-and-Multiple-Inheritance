@@ -19,7 +19,7 @@ public class OOPMultipleClassGenerator {
     private static final String className = "OOPMultiple";
     private static final String packageName = "OOP.Solution.Multiple";
     private static final String DispatchClassName = "OOPMultipleControl";
-    private static final String sourcePath = System.getProperty("user.dir") + "/src/OOP/Solution/Multiple" + "/";
+    private static final String sourcePath = System.getProperty("user.dir") + "/OOP/Solution/Multiple" + "/";
     private static final String classPath = System.getProperty("user.dir");
     private OOPMultipleControl controller;
 
