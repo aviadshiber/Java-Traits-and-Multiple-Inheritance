@@ -18,6 +18,7 @@ public class Example {
            // Arrays.stream(I2.class.getAnnotations()).forEach(clazz-> System.out.println(clazz));
 
             Assert.assertEquals("C1 : f", obj.f());
+            //Assert.assertEquals(null, obj.g());
             obj.g();
 
         } catch (OOPMultipleException e) {

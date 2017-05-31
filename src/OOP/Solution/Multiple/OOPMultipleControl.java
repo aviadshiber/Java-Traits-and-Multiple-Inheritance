@@ -84,8 +84,8 @@ public class OOPMultipleControl {
         Method bestMatch = getBestMatch(filteredMethods, classMap, args);
         Class<?> methodInClass = classMap.get(bestMatch);
         Object obj = ReflectionHelper.getInstanceByConvention(methodInClass);
-        ReflectionHelper.invokeMethod(bestMatch, obj, args);
-        return obj;
+        Object returnValue= ReflectionHelper.invokeMethod(bestMatch, obj, args);
+        return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
     }
 
 
@@ -215,6 +215,8 @@ public class OOPMultipleControl {
 
     private boolean checkForArgsEquality(Method m, Object[] args) {
         Type[] types = m.getParameterTypes();
+        if(types.length==0 )
+            return args==null;
         if (args.length != types.length)
             return false;
         for (int i = 0; i < types.length; i++) {

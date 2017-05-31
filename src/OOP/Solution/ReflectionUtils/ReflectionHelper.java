@@ -16,6 +16,7 @@ public class ReflectionHelper {
 
     public static final String CLASS_NAME_CONVENTION="C";
     public static final String INTERFACE_NAME_CONVENTION="I";
+    public static final String PACKAGE_DELIMITER=".";
 
 
     public static List<Method> getMethodsAnnotatedWith(final Class<?> type, final Class<? extends Annotation> annotation) {
@@ -47,22 +48,28 @@ public class ReflectionHelper {
         return classMap;
     }
 
-    public static void invokeMethod(Method method,Object obj,Object... args){
+    public static Object invokeMethod(Method method,Object obj,Object... args){
         try {
-            method.invoke(obj,args);
+            if(args!=null)
+                return method.invoke(obj,args);
+            else
+                return method.invoke(obj);
         } catch (IllegalAccessException e) {
            // e.printStackTrace();
         } catch (InvocationTargetException e) {
            // e.printStackTrace();
         }
+        return null;
     }
 
-    public static Object getInstanceByConvention(Class<?> Clazz) {
+    public static Object getInstanceByConvention(Class<?> clazz) {
         Object obj=null;
-        if(Clazz.isInterface() && Clazz.getName().startsWith(INTERFACE_NAME_CONVENTION)){
+        String packageName=clazz.getPackage().getName();
+        String className=clazz.getSimpleName();
+        if(clazz.isInterface() && className.startsWith(INTERFACE_NAME_CONVENTION)){
             //extracting the interface number
-            String interfaceNumber=Clazz.getName().substring(1);
-            Class<?> klass=ReflectionHelper.getClassWithSufix(interfaceNumber);
+            String interfaceNumber=className.substring(1);
+            Class<?> klass=ReflectionHelper.getClassByConvention(packageName+PACKAGE_DELIMITER,interfaceNumber);
             try {
                 if(klass!=null)
                     obj=klass.newInstance();
@@ -72,10 +79,10 @@ public class ReflectionHelper {
                 // e.printStackTrace();
             }
 
-        }else if(Clazz.getName().startsWith(CLASS_NAME_CONVENTION)){
+        }else if(clazz.getName().startsWith(CLASS_NAME_CONVENTION)){
             //TODO: WHAT IF THE CLASS IS ABSTRACT?? do we care about it?
             try {
-                obj=Clazz.newInstance();
+                obj=clazz.newInstance();
             } catch (InstantiationException e) {
                // e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -86,10 +93,10 @@ public class ReflectionHelper {
         return obj;
     }
 
-    public static Class<?> getClassWithSufix(String sufix){
+    public static Class<?> getClassByConvention(String prefix, String sufix){
         Class<?> klass=null;
         try {
-           klass=Class.forName(CLASS_NAME_CONVENTION+sufix);
+           klass=Class.forName(prefix+CLASS_NAME_CONVENTION+sufix);
 
         } catch (ClassNotFoundException e) {
 
@@ -104,8 +111,11 @@ public class ReflectionHelper {
      * @return
      */
     public static int calculateMethodPath(Method method,Object ...args){
+        if(args==null)
+            return 0;
         int totalDistance=0;
         Class<?>[] methodTypes=method.getParameterTypes();
+
         for(int i=0;i<args.length;i++){
             Object argument=args[i];
             Class<?> type=methodTypes[i];

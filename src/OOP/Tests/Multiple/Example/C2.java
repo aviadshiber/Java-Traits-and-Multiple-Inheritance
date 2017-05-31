@@ -7,5 +7,7 @@ public class C2 implements I2 {
 
 
     @Override
-    public void g() throws OOPMultipleException {}
+    public void g() throws OOPMultipleException {
+        System.out.println("g was invoked!");
+    }
 }
