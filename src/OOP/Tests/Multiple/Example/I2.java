@@ -8,5 +8,5 @@ import OOP.Solution.Multiple.OOPMultipleMethod;
 public interface I2 {
 
     @OOPMultipleMethod
-    String f() throws OOPMultipleException;
+    void g() throws OOPMultipleException;
 }

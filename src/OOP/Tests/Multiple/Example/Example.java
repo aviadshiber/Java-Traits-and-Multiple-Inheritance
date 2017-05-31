@@ -5,7 +5,6 @@ import OOP.Provided.Multiple.OOPMultipleException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
 
 public class Example {
 

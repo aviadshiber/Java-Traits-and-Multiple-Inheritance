@@ -7,5 +7,5 @@ public class C2 implements I2 {
 
 
     @Override
-    public String f() throws OOPMultipleException {return null;}
+    public void g() throws OOPMultipleException {}
 }

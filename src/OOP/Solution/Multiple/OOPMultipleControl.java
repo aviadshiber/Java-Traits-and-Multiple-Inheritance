@@ -3,6 +3,7 @@ package OOP.Solution.Multiple;
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
 import OOP.Provided.Multiple.OOPInherentAmbiguity;
 import OOP.Provided.Multiple.OOPMultipleException;
+import OOP.Solution.ReflectionUtils.ReflectionHelper;
 import javafx.util.Pair;
 
 import java.io.File;
@@ -18,6 +19,7 @@ public class OOPMultipleControl {
     //TODO: DO NOT CHANGE !!!!!!
     private Class<?> interfaceClass;
     private File sourceFile;
+
 
     //TODO: DO NOT CHANGE !!!!!!
     public OOPMultipleControl(Class<?> interfaceClass, File sourceFile) {
@@ -62,35 +64,68 @@ public class OOPMultipleControl {
     }
 
 
-    //TODO: fill in here :
+    /**
+     * the method look for CoincidentalAmbiguity of methodName with args, if none exist
+     * find the best match to it, and invokes it!
+     * @param methodName
+     * @param args
+     * @return the object that we invoke on
+     * @throws OOPMultipleException
+     */
     public Object invoke(String methodName, Object[] args)
             throws OOPMultipleException {
-
-
         List<Method> filteredMethods=validateCoincidentalAmbiguity(interfaceClass,methodName,args);
-        //TODO: no collisions was found so we need to find the best match. what is a best match?
-        //1 prefer literal on polymorphism
         Method bestMatch=getBestMatch(filteredMethods,args);
-
-        return bestMatch;
+        Map<Method,Class<?>> classMap=ReflectionHelper.mapMethodToClass(interfaceClass.getInterfaces());
+        Class<?> methodInClass=classMap.get(bestMatch);
+        Object obj= ReflectionHelper.getInstanceByConvention(methodInClass);
+        ReflectionHelper.invokeMethod(bestMatch,obj,args);
+        return obj;
     }
 
+
+
+    /**
+     * a wrapper class to save the methods by their distance
+     */
+    private class MethodDistance{
+        int distance;
+        Method method;
+
+        public MethodDistance(int distance,Method method) {
+            this.distance = distance;
+            this.method=method;
+        }
+
+    }
+
+    /**
+     * the method get the best match from the filtered methods which have the shortest path from args to method types.
+     * @param filteredMethods the method which were filtered to be by name and arguments.
+     * @param args the actual arguments
+     * @return the method which have the best match
+     */
     private Method getBestMatch(List<Method> filteredMethods, Object... args) {
-        //TODO: find the shortest path of arguments to the actual method arguments(args)
-        return null;
+        PriorityQueue<MethodDistance> queue=new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
+        filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method,args)));
+        //return the minimal distance- the best match
+        return queue.poll().method;
     }
+
+    private MethodDistance createMethodDistanceObject(Method method, Object[] args) {
+        int distance= ReflectionHelper.calculateMethodPath(method,args);
+        return new MethodDistance(distance,method);
+    }
+
 
     private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass
             ,String methodName,Object... args) throws OOPCoincidentalAmbiguity {
         Class<?>[] superClasses=interfaceClass.getInterfaces();
         List<Method> filteredByNameAndArguments= new ArrayList<>();
-        //match each method to their classes
-        HashMap<Method,Class<?>> classMap=new HashMap<>();
+
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
        for(Class<?> superClass : superClasses){
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
-            //for later use we need to map each method to a it's class
-            superClassMethods.forEach(m-> classMap.put(m,superClass));
             Stream<Method>  filteredByName= filterByMethodName(methodName,superClassMethods);
             filteredByNameAndArguments.addAll( filterByArguments(filteredByName,args));
         }
@@ -98,13 +133,14 @@ public class OOPMultipleControl {
         final Set<Method> collisions=getCollidedMethods(filteredByNameAndArguments);
         //if we found one by now then we throw an exception
         if(collisions.size()>0){
-                Collection<Pair<Class<?>,Method>> pairs=new HashSet<>();
-                //we warp it as a pair before throwing
-                collisions.stream().forEach(m-> pairs.add(new Pair<>(classMap.get(m),m)));
-                throw new OOPCoincidentalAmbiguity(pairs);
+            Collection<Pair<Class<?>,Method>> pairs=new HashSet<>();
+            //match each method to their classes, so we can build the pairs
+            HashMap<Method,Class<?>> classMap=ReflectionHelper.mapMethodToClass(superClasses);
+
+            //we warp it as a pair before throwing
+            collisions.stream().forEach(m-> pairs.add(new Pair<>(classMap.get(m),m)));
+            throw new OOPCoincidentalAmbiguity(pairs);
         }
-
-
         //no collisions were found so we return what we found so far
         return filteredByNameAndArguments;
     }
@@ -113,7 +149,7 @@ public class OOPMultipleControl {
 
     private Set<Method> getCollidedMethods(List<Method> methodList) {
         /**
-         * the class was made to make a set of only
+         * the class was made to make a set of unique methods only the (comparing is between their arguments)
          */
         class MethodComparator{
             Method method;
