@@ -83,7 +83,7 @@ public class OOPTraitControl {
         List<Method> allMethods = getAllOurMethods(traitCollector);
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = implemented.stream().filter(M -> M.getName().equals(methodName)).collect(Collectors.toList());
-        HashMap<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
         try {
             Method toInvoke = traitCollector.getMethod(methodName, (Class<?>[]) args);
             OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
