@@ -22,6 +22,7 @@ public class OOPMultipleControl {
     private Class<?> interfaceClass;
     private File sourceFile;
 
+    Map<Class<?>,Object> interfaceToObject;
 
     // DO NOT CHANGE !!!!!!
     public OOPMultipleControl(Class<?> interfaceClass, File sourceFile) {
@@ -31,9 +32,18 @@ public class OOPMultipleControl {
 
     //need to scan for common parent and throw exception if there is one.
     public void validateInheritanceGraph() throws OOPMultipleException {
+        interfaceToObject=new Hashtable<>();
+        fillMapInterfaceToObject(interfaceToObject);
         Set<Class<?>> interfaceSet = new HashSet<>();
         validateForCommonParent(interfaceClass, interfaceSet
                 , OOPMultipleInterface.class, OOPMultipleMethod.class);
+    }
+
+    private void fillMapInterfaceToObject(Map<Class<?>, Object> interfaceToObject) {
+        Map<Method,Class<?>> classMap=mapMethodToClass(interfaceClass.getInterfaces());
+        Collection<Class<?>> allClasses=classMap.values();
+       List<Class<?>> annotatedClasses= allClasses.stream().filter(c-> c.isAnnotationPresent(OOPMultipleInterface.class)).collect(Collectors.toList());
+        annotatedClasses.forEach(clazz->interfaceToObject.put(clazz,getInstanceByConvention(clazz)));
     }
 
     /**
@@ -86,7 +96,8 @@ public class OOPMultipleControl {
                 , args);
         Method bestMatch = getBestMatch(filteredMethods, classMap, args);
         Class<?> methodInClass = classMap.get(bestMatch);
-        Object obj = ReflectionHelper.getInstanceByConvention(methodInClass);
+        Object obj=interfaceToObject.get(methodInClass);
+        //Object obj = ReflectionHelper.getInstanceByConvention(methodInClass);
         Object returnValue= invokeMethod(bestMatch, obj, args);
         return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
     }
