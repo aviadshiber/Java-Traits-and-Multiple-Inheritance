@@ -84,6 +84,10 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
+        List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        List<Method> matches = implemented.stream().filter(M -> M.getName().equals(methodName)).collect(Collectors.toList());
+
         return null;
     }
 
