@@ -1,6 +1,7 @@
 package OOP.Solution.Trait;
 
 import OOP.Provided.Trait.OOPBadClass;
+import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Provided.Trait.OOPTraitMissingImpl;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 import static OOP.Solution.ReflectionUtils.ReflectionHelper.getAllOurMethods;
 import static OOP.Solution.ReflectionUtils.ReflectionHelper.mapMethodToClass;
+import static OOP.Solution.ReflectionUtils.ReflectionHelper.methodsHaveSameArguments;
 
 
 public class OOPTraitControl {
@@ -33,20 +35,41 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
         List<Method> allMethods = getAllOurMethods(traitCollector);
-        HashMap<Method,Class<?>> classMap=mapMethodToClass(traitCollector.getInterfaces());
-        List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> ! (M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
-        if(notAnnotatedMethods.size() > 0)
+        HashMap<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+        List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
+        if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
         List<Class<?>> notAnnotatedClass = allMethods.stream().map(M -> classMap.get(M)).filter(C -> C.isAnnotationPresent(OOPTraitBehaviour.class)).collect(Collectors.toList());
-        if(notAnnotatedClass.size() > 0)
+        if (notAnnotatedClass.size() > 0)
             throw new OOPBadClass(notAnnotatedClass.get(0));
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
-        for (Method M : allMethods) {
-            if (!(implemented.stream().anyMatch(M2 -> M2.getName().equals(M.getName())))) {
-                throw new OOPTraitMissingImpl(M);
+        for (Method method : allMethods) {
+            if (!(implemented.stream().anyMatch(M2 -> methodsHaveSameArguments(method, M2)))) {
+                throw new OOPTraitMissingImpl(method);
             }
         }
+        for (Method method : allMethods) {
+            List<Method> conflicts = allMethods.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod)).collect(Collectors.toList());
+            validateResolvedConflicts(conflicts,classMap);
+        }
 
+    }
+
+    private void validateResolvedConflicts(List<Method> conflicts, HashMap<Method, Class<?>> classMap) throws OOPTraitConflict {
+        if (conflicts.size() > 1) {
+            Method conflictedMethod = conflicts.get(0);
+            try {
+                conflictedMethod = traitCollector.getMethod(conflictedMethod.getName(), conflictedMethod.getParameterTypes());
+                if (conflictedMethod.isAnnotationPresent(OOPTraitConflictResolver.class)) {
+                    OOPTraitConflictResolver annotation = conflictedMethod.getAnnotation(OOPTraitConflictResolver.class);
+                    if (annotation.resolve() == null || !conflicts.stream().anyMatch(m -> classMap.get(m).equals(annotation.resolve())))
+                        throw new OOPTraitConflict(conflictedMethod);
+                } else {
+                    throw new OOPTraitConflict(conflictedMethod);
+                }
+            } catch (NoSuchMethodException e) {
+            }
+        }
     }
 
     private boolean isAnnotatedBy(Method m, Class<OOPTraitMethod> oopTraitMethodClass, OOPTraitMethodModifier inter) {
