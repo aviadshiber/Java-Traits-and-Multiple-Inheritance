@@ -27,12 +27,10 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
-
-
-        List<Method> allMethods=Arrays.asList(traitCollector.getMethods());
-        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_IMPL )).collect(Collectors.toList());
-        for(Method M : allMethods){
-            if(!(implemented.stream().anyMatch( M2 -> M2.getName().equals(M.getName())))){
+        List<Method> allMethods = Arrays.stream(traitCollector.getMethods()).filter(m -> m.isAnnotationPresent(OOPTraitMethod.class)).collect(Collectors.toList());
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        for (Method M : allMethods) {
+            if (!(implemented.stream().anyMatch(M2 -> M2.getName().equals(M.getName())))) {
                 throw new OOPTraitMissingImpl(M);
             }
         }
@@ -40,13 +38,12 @@ public class OOPTraitControl {
     }
 
     private boolean isAnnotatedBy(Method m, Class<OOPTraitMethod> oopTraitMethodClass, OOPTraitMethodModifier inter) {
-        if(m.isAnnotationPresent(oopTraitMethodClass)){
+        if (m.isAnnotationPresent(oopTraitMethodClass)) {
             OOPTraitMethod mod = m.getAnnotation(oopTraitMethodClass);
             return mod.modifier().equals(inter);
         }
         return false;
     }
-
 
 
     //TODO: fill in here :
