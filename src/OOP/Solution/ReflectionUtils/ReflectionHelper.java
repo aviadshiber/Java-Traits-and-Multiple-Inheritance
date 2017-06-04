@@ -3,6 +3,7 @@ package OOP.Solution.ReflectionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -149,6 +150,30 @@ public class ReflectionHelper {
             }
         }
         return totalDistance;
+    }
+
+
+    /**
+     * the method checks if two Methods have the same arguments.
+     * since java is no-variance they must have the same size, and the same types.
+     *
+     * @param methodOne
+     * @param methodTwo
+     * @return
+     */
+    public static boolean methodsHaveSameArguments(Method methodOne, Method methodTwo) {
+        Type[] methodOneTypes = methodOne.getGenericParameterTypes();
+        Type[] methodTwoTypes = methodTwo.getParameterTypes();
+        if (methodOneTypes.length != methodTwoTypes.length) {
+            return false;
+        } else {
+            for (int i = 0; i < methodOneTypes.length; i++) {
+                if (!methodOneTypes[i].getTypeName().equals(methodTwoTypes[i].getTypeName()))
+                    return false;
+            }
+
+        }
+        return true;
     }
 
 }

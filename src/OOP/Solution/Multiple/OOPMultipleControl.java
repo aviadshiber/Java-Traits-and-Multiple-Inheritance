@@ -184,7 +184,7 @@ public class OOPMultipleControl {
 
                 MethodComparator that = (MethodComparator) o;
 
-                return method != null ? methodsHaveSameArguments(method, that.method) : that.method == null;
+                return method != null ? ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
             }
 
             @Override
@@ -231,28 +231,7 @@ public class OOPMultipleControl {
     }
 
 
-    /**
-     * the method checks if two Methods have the same arguments.
-     * since java is no-variance they must have the same size, and the same types.
-     *
-     * @param methodOne
-     * @param methodTwo
-     * @return
-     */
-    private static boolean methodsHaveSameArguments(Method methodOne, Method methodTwo) {
-        Type[] methodOneTypes = methodOne.getGenericParameterTypes();
-        Type[] methodTwoTypes = methodTwo.getParameterTypes();
-        if (methodOneTypes.length != methodTwoTypes.length) {
-            return false;
-        } else {
-            for (int i = 0; i < methodOneTypes.length; i++) {
-                if (!methodOneTypes[i].getTypeName().equals(methodTwoTypes[i].getTypeName()))
-                    return false;
-            }
 
-        }
-        return true;
-    }
 
 
     //DO NOT CHANGE !!!!!!
