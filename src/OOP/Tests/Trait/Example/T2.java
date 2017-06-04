@@ -8,7 +8,7 @@ import static OOP.Solution.Trait.OOPTraitMethodModifier.INTER_IMPL;
 import static OOP.Tests.Trait.Example.Example.obj;
 
 @OOPTraitBehaviour
-public interface T2 {
+public interface T2  {
 
     @OOPTraitMethod     //no implementation here
     int getValue() throws OOPTraitException;
