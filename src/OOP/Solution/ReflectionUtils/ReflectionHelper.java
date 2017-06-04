@@ -42,8 +42,8 @@ public class ReflectionHelper {
         }
         return methods;
     }*/
-    public static HashMap<Method,Class<?>> mapMethodToClass(Class<?>[] superClasses){
-        HashMap<Method,Class<?>> classMap=new HashMap<>();
+    public static Map<Method,Class<?>> mapMethodToClass(Class<?>[] superClasses){
+        Map<Method,Class<?>> classMap=new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
         for(Class<?> superClass : superClasses){
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
