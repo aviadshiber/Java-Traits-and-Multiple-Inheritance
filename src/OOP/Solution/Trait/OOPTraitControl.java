@@ -8,10 +8,7 @@ import OOP.Provided.Trait.OOPTraitMissingImpl;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -35,7 +32,7 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
         List<Method> allMethods = getAllOurMethods(traitCollector);
-        HashMap<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
         List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
@@ -55,7 +52,7 @@ public class OOPTraitControl {
 
     }
 
-    private void validateResolvedConflicts(List<Method> conflicts, HashMap<Method, Class<?>> classMap) throws OOPTraitConflict {
+    private void validateResolvedConflicts(List<Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         if (conflicts.size() > 1) {
             Method conflictedMethod = conflicts.get(0);
             try {
