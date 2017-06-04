@@ -15,9 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static OOP.Solution.ReflectionUtils.ReflectionHelper.filterByArguments;
-import static OOP.Solution.ReflectionUtils.ReflectionHelper.filterByMethodName;
-import static OOP.Solution.ReflectionUtils.ReflectionHelper.getCollidedMethods;
+import static OOP.Solution.ReflectionUtils.ReflectionHelper.*;
 
 public class OOPMultipleControl {
 
@@ -95,54 +93,7 @@ public class OOPMultipleControl {
     }
 
 
-    /**
-     * a wrapper class to save the methods by their distance
-     */
-    private class MethodDistance {
-        int distance;
-        Method method;
 
-        public MethodDistance(int distance, Method method) {
-            this.distance = distance;
-            this.method = method;
-        }
-
-    }
-
-    /**
-     * the method get the best match from the filtered methods which have the shortest path from args to method types.
-     *
-     * @param filteredMethods the method which were filtered to be by name and arguments.
-     * @param args            the actual arguments
-     * @return the method which have the best match
-     */
-    private Method getBestMatch(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
-        PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
-        filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
-        MethodDistance bestMatch = queue.poll();
-        //if there is more than one match we need to see if there are equals matches, if there are some then there is Coincidental Ambiguity
-        if (!queue.isEmpty()) {
-            MethodDistance nextMatch = queue.poll();
-            Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
-            pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
-            while (nextMatch.distance == bestMatch.distance) {
-                pairs.add(new Pair<>(classMap.get(nextMatch.method), nextMatch.method));
-                if (queue.isEmpty())
-                    break;
-                nextMatch = queue.poll();
-            }
-            if (pairs.size() > 1) {
-                throw new OOPCoincidentalAmbiguity(pairs);
-            }
-        }
-        //return the minimal distance- the best match
-        return bestMatch.method;
-    }
-
-    private MethodDistance createMethodDistanceObject(Method method, Object[] args) {
-        int distance = ReflectionHelper.calculateMethodPath(method, args);
-        return new MethodDistance(distance, method);
-    }
 
 
     private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass,
