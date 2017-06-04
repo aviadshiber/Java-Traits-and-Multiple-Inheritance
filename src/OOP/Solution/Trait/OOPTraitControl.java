@@ -35,9 +35,13 @@ public class OOPTraitControl {
         List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
-        List<Class<?>> notAnnotatedClass = allMethods.stream().map(classMap::get).filter(C -> C.isAnnotationPresent(OOPTraitBehaviour.class)).collect(Collectors.toList());
-        if (notAnnotatedClass.size() > 0)
+        List<Class<?>> notAnnotatedClass = allMethods.stream().map(classMap::get).filter(C -> {
+            if (C != null) return !C.isAnnotationPresent(OOPTraitBehaviour.class);
+            else return false;
+        }).collect(Collectors.toList());
+        if (notAnnotatedClass.size() > 0) {
             throw new OOPBadClass(notAnnotatedClass.get(0));
+        }
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         for (Method method : allMethods) {
             if (implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2))) {
@@ -45,8 +49,8 @@ public class OOPTraitControl {
             }
         }
         for (Method method : allMethods) {
-            List<Method> conflicts = allMethods.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod)).collect(Collectors.toList());
-            validateResolvedConflicts(conflicts,classMap);
+            List<Method> conflicts = implemented.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod)).collect(Collectors.toList());
+            validateResolvedConflicts(conflicts, classMap);
         }
 
     }
@@ -84,12 +88,16 @@ public class OOPTraitControl {
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = implemented.stream().filter(M -> M.getName().equals(methodName)).collect(Collectors.toList());
         Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+        List<Method> matchesinTraitCollector = Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList());
+        Method toInvoke = null;
         try {
-            Method toInvoke = traitCollector.getMethod(methodName, (Class<?>[]) args);
+            toInvoke = getBestMatch(true, matchesinTraitCollector, classMap, args);
             OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
             toInvoke = matches.stream().filter(m -> classMap.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
-        } catch (NoSuchMethodException e) {
+
+        } catch (OOPCoincidentalAmbiguity oopCoincidentalAmbiguity) {
         }
+
         return null;
     }
 
