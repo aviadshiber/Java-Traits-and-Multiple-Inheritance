@@ -31,7 +31,8 @@ public class OOPMultipleControl {
     //need to scan for common parent and throw exception if there is one.
     public void validateInheritanceGraph() throws OOPMultipleException {
         Set<Class<?>> interfaceSet = new HashSet<>();
-        validateForCommonParent(interfaceClass, interfaceSet, OOPMultipleInterface.class, OOPMultipleMethod.class);
+        validateForCommonParent(interfaceClass, interfaceSet
+                , OOPMultipleInterface.class, OOPMultipleMethod.class);
     }
 
     /**
@@ -80,7 +81,8 @@ public class OOPMultipleControl {
         //we map every method to a it's class for later use
         Map<Method, Class<?>> classMap = ReflectionHelper.mapMethodToClass(interfaceClass.getInterfaces());
 
-        List<Method> filteredMethods = validateCoincidentalAmbiguity(interfaceClass, classMap, methodName, args);
+        List<Method> filteredMethods = validateCoincidentalAmbiguity(interfaceClass, classMap, methodName
+                , args);
         Method bestMatch = getBestMatch(filteredMethods, classMap, args);
         Class<?> methodInClass = classMap.get(bestMatch);
         Object obj = ReflectionHelper.getInstanceByConvention(methodInClass);
