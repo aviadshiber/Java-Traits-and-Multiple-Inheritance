@@ -4,11 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by ashiber on 30-May-17.
@@ -172,6 +170,71 @@ public class ReflectionHelper {
                     return false;
             }
 
+        }
+        return true;
+    }
+
+
+    public static Set<Method> getCollidedMethods(List<Method> methodList) {
+        /**
+         * the class was made to make a set of unique methods only the (comparing is between their arguments)
+         */
+        class MethodComparator {
+            Method method;
+
+            public MethodComparator(Method method) {
+                this.method = method;
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                MethodComparator that = (MethodComparator) o;
+
+                return method != null ? ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
+            }
+
+            @Override
+            public int hashCode() {
+                return method != null ? method.hashCode() : 0;
+            }
+        }
+
+        //we create special set to compare between methods by their arguments (a sub Set of methodList)
+        Set<MethodComparator> uniqeMethods = new HashSet<>();
+        methodList.forEach(method -> uniqeMethods.add(new MethodComparator(method)));
+        //unwrap it to regular Set
+        Set<Method> regularUniqueMethods = uniqeMethods.stream().map(mc -> mc.method).collect(Collectors.toSet());
+        Set<Method> allMethods = new HashSet<>();
+        //convert methodList to Set
+        methodList.stream().forEach(m -> allMethods.add(m));
+
+        //now we can subtract with the regular equal method which is not by arguments but by class
+        allMethods.removeAll(regularUniqueMethods);
+        return allMethods;
+    }
+
+    public static Stream<Method> filterByMethodName(String methodName, List<Method> superClassMethods) {
+        return superClassMethods.stream().filter(superClassMethod -> superClassMethod.getName().equals(methodName));
+    }
+
+    public static List<Method> filterByArguments(Stream<Method> filteredByName, Object[] args) {
+        return filteredByName.filter(m -> checkForArgsEquality(m, args)).collect(Collectors.toList());
+    }
+
+    public static boolean checkForArgsEquality(Method m, Object[] args) {
+        Type[] types = m.getParameterTypes();
+        if(types.length==0 )
+            return args==null;
+        if (args.length != types.length)
+            return false;
+        for (int i = 0; i < types.length; i++) {
+            Class<?> type = types[i].getClass();
+            Object object = args[i];
+            if (!type.isInstance(object))
+                return false;
         }
         return true;
     }

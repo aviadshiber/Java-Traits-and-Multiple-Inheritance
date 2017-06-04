@@ -15,6 +15,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static OOP.Solution.ReflectionUtils.ReflectionHelper.filterByArguments;
+import static OOP.Solution.ReflectionUtils.ReflectionHelper.filterByMethodName;
+import static OOP.Solution.ReflectionUtils.ReflectionHelper.getCollidedMethods;
+
 public class OOPMultipleControl {
 
     // DO NOT CHANGE !!!!!!
@@ -166,10 +170,10 @@ public class OOPMultipleControl {
     }
 
 
-    private Set<Method> getCollidedMethods(List<Method> methodList) {
-        /**
+    /*private Set<Method> getCollidedMethods(List<Method> methodList) {
+        *//**
          * the class was made to make a set of unique methods only the (comparing is between their arguments)
-         */
+         *//*
         class MethodComparator {
             Method method;
 
@@ -228,7 +232,7 @@ public class OOPMultipleControl {
                 return false;
         }
         return true;
-    }
+    }*/
 
 
 
