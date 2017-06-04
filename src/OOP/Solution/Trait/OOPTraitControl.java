@@ -39,12 +39,12 @@ public class OOPTraitControl {
         List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
-        List<Class<?>> notAnnotatedClass = allMethods.stream().map(M -> classMap.get(M)).filter(C -> C.isAnnotationPresent(OOPTraitBehaviour.class)).collect(Collectors.toList());
+        List<Class<?>> notAnnotatedClass = allMethods.stream().map(classMap::get).filter(C -> C.isAnnotationPresent(OOPTraitBehaviour.class)).collect(Collectors.toList());
         if (notAnnotatedClass.size() > 0)
             throw new OOPBadClass(notAnnotatedClass.get(0));
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         for (Method method : allMethods) {
-            if (!(implemented.stream().anyMatch(M2 -> methodsHaveSameArguments(method, M2)))) {
+            if (implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2))) {
                 throw new OOPTraitMissingImpl(method);
             }
         }
@@ -62,7 +62,7 @@ public class OOPTraitControl {
                 conflictedMethod = traitCollector.getMethod(conflictedMethod.getName(), conflictedMethod.getParameterTypes());
                 if (conflictedMethod.isAnnotationPresent(OOPTraitConflictResolver.class)) {
                     OOPTraitConflictResolver annotation = conflictedMethod.getAnnotation(OOPTraitConflictResolver.class);
-                    if (annotation.resolve() == null || !conflicts.stream().anyMatch(m -> classMap.get(m).equals(annotation.resolve())))
+                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve())))
                         throw new OOPTraitConflict(conflictedMethod);
                 } else {
                     throw new OOPTraitConflict(conflictedMethod);
@@ -84,6 +84,10 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
+        List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        List<Method> matches = implemented.stream().filter(M -> M.getName().equals(methodName)).collect(Collectors.toList());
+
         return null;
     }
 
