@@ -19,12 +19,12 @@ import java.util.stream.Stream;
  */
 public class ReflectionHelper {
 
-    public static final String CLASS_NAME_CONVENTION="C";
-    public static final String INTERFACE_NAME_CONVENTION="I";
-    public static final String PACKAGE_DELIMITER=".";
+    private static final String CLASS_NAME_CONVENTION="C";
+    private static final String INTERFACE_NAME_CONVENTION="I";
+    private static final String PACKAGE_DELIMITER=".";
 
 
-    public static List<Method> getMethodsAnnotatedWith(final Class<?> type, final Class<? extends Annotation> annotation) {
+    /*public static List<Method> getMethodsAnnotatedWith(final Class<?> type, final Class<? extends Annotation> annotation) {
         final List<Method> methods = new ArrayList<Method>();
         Class<?> klass = type;
         while (klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
@@ -41,7 +41,7 @@ public class ReflectionHelper {
             klass = klass.getSuperclass();
         }
         return methods;
-    }
+    }*/
     public static HashMap<Method,Class<?>> mapMethodToClass(Class<?>[] superClasses){
         HashMap<Method,Class<?>> classMap=new HashMap<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
@@ -59,9 +59,7 @@ public class ReflectionHelper {
                 return method.invoke(obj,args);
             else
                 return method.invoke(obj);
-        } catch (IllegalAccessException e) {
-           // e.printStackTrace();
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
            // e.printStackTrace();
         }
         return null;
@@ -78,10 +76,8 @@ public class ReflectionHelper {
             try {
                 if(klass!=null)
                     obj=klass.newInstance();
-            } catch (InstantiationException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 //e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                // e.printStackTrace();
             }
 
         }else if(clazz.getName().startsWith(CLASS_NAME_CONVENTION)){
@@ -111,9 +107,9 @@ public class ReflectionHelper {
 
     /**
      * the method calculates the total distance of each argument from the method actual types.
-     * @param method
-     * @param args
-     * @return
+     * @param method the method to calculate the distance from args
+     * @param args the arguments
+     * @return the distance
      */
     public static int calculateMethodPath(Method method,Object ...args){
         if(args==null)
@@ -130,14 +126,14 @@ public class ReflectionHelper {
                 if(type.isInterface()){
                     boolean wasTypeBeenFound=false;
                     while(!wasTypeBeenFound){
-                        List<Class<?>> foundedInterfaces=Arrays.stream(argumentClass.getInterfaces()).filter(argInterface-> type.isAssignableFrom(argInterface)).collect(Collectors.toList());
+                        List<Class<?>> foundedInterfaces=Arrays.stream(argumentClass.getInterfaces()).filter(type::isAssignableFrom).collect(Collectors.toList());
                         while(foundedInterfaces.size()>0){
                             //only one can be found
                             Class<?> foundedInterface=foundedInterfaces.get(0);
                             if(foundedInterface.equals(type))
                                 wasTypeBeenFound=true;
                             totalDistance++;
-                            foundedInterfaces=Arrays.stream(foundedInterface.getInterfaces()).filter(interfaze-> type.isAssignableFrom(interfaze)).collect(Collectors.toList());
+                            foundedInterfaces=Arrays.stream(foundedInterface.getInterfaces()).filter(type::isAssignableFrom).collect(Collectors.toList());
                         }
                         if(foundedInterfaces.size()==0 && !wasTypeBeenFound){
                             argumentClass=argumentClass.getSuperclass();
@@ -161,9 +157,9 @@ public class ReflectionHelper {
      * the method checks if two Methods have the same arguments.
      * since java is no-variance they must have the same size, and the same types.
      *
-     * @param methodOne
-     * @param methodTwo
-     * @return
+     * @param methodOne method one
+     * @param methodTwo method two
+     * @return true if two method have the same name and same arguments
      */
     public static boolean methodsHaveSameArguments(Method methodOne, Method methodTwo) {
         Type[] methodOneTypes = methodOne.getGenericParameterTypes();
@@ -188,7 +184,7 @@ public class ReflectionHelper {
         int distance;
         Method method;
 
-        public MethodDistance(int distance, Method method) {
+        MethodDistance(int distance, Method method) {
             this.distance = distance;
             this.method = method;
         }
@@ -237,13 +233,13 @@ public class ReflectionHelper {
     }
 
     public static Set<Method> getCollidedMethods(List<Method> methodList) {
-        /**
-         * the class was made to make a set of unique methods only the (comparing is between their arguments)
+        /*
+          the class was made to make a set of unique methods only the (comparing is between their arguments)
          */
         class MethodComparator {
             Method method;
 
-            public MethodComparator(Method method) {
+             MethodComparator(Method method) {
                 this.method = method;
             }
 
@@ -270,7 +266,7 @@ public class ReflectionHelper {
         Set<Method> regularUniqueMethods = uniqeMethods.stream().map(mc -> mc.method).collect(Collectors.toSet());
         Set<Method> allMethods = new HashSet<>();
         //convert methodList to Set
-        methodList.stream().forEach(m -> allMethods.add(m));
+        methodList.forEach(m -> allMethods.add(m));
 
         //now we can subtract with the regular equal method which is not by arguments but by class
         allMethods.removeAll(regularUniqueMethods);
@@ -307,10 +303,7 @@ public class ReflectionHelper {
        if (klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
            // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
            final List<Method> allMethods = new ArrayList<Method>(Arrays.asList(klass.getDeclaredMethods()));
-           for (final Method method : allMethods) {
-               methods.add(method);
-           }
-
+           methods.addAll(allMethods);
            // move to the upper class in the hierarchy in search for more methods
            /*if(klass.isInterface()){
                String packageName=klass.getPackage().getName();
