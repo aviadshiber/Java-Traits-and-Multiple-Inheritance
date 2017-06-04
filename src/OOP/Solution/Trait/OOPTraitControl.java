@@ -66,7 +66,7 @@ public class OOPTraitControl {
                 } else {
                     throw new OOPTraitConflict(conflictedMethod);
                 }
-            } catch (NoSuchMethodException e) {
+            } catch (NoSuchMethodException ignored) {
             }
         }
     }
