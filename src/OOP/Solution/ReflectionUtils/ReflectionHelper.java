@@ -237,10 +237,33 @@ public class ReflectionHelper {
         return getBestMatch(false, filteredMethods, classMap, args);
     }
 
+    /**
+     * return the
+     * @param filteredMethods
+     * @param classMap
+     * @param args
+     * @return
+     */
     public static  PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
         PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
         filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
         return queue;
+    }
+    private static  Collection<Pair<Class<?>, Method>> getClosestMethodsAsPairs(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
+        Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
+        PriorityQueue<MethodDistance> queue=getAllBestMatches(filteredMethods,classMap,args);
+        MethodDistance bestMatch = queue.poll();
+        pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
+        if(!queue.isEmpty()){
+            MethodDistance nextMatch = queue.poll();
+            while (nextMatch.distance == bestMatch.distance) {
+                pairs.add(new Pair<>(classMap.get(nextMatch.method), nextMatch.method));
+                if (queue.isEmpty())
+                    break;
+                nextMatch = queue.poll();
+            }
+        }
+        return pairs;
     }
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
@@ -251,25 +274,22 @@ public class ReflectionHelper {
      * @return the method which have the best match
      */
     public static Method getBestMatch(boolean skipExceptionCheck, List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
-        PriorityQueue<MethodDistance> queue = getAllBestMatches(filteredMethods,classMap,args);
-        MethodDistance bestMatch = queue.poll();
+
+        Collection<Pair<Class<?>, Method>> pairs=getClosestMethodsAsPairs(filteredMethods,classMap,args);
         //if there is more than one match we need to see if there are equals matches, if there are some then there is Coincidental Ambiguity
-        if (!skipExceptionCheck && !queue.isEmpty()) {
-            MethodDistance nextMatch = queue.poll();
-            Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
-            pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
-            while (nextMatch.distance == bestMatch.distance) {
-                pairs.add(new Pair<>(classMap.get(nextMatch.method), nextMatch.method));
-                if (queue.isEmpty())
-                    break;
-                nextMatch = queue.poll();
-            }
-            if (pairs.size() > 1) {
+        if (pairs.size() > 1) {
                 throw new OOPCoincidentalAmbiguity(pairs);
-            }
         }
         //return the minimal distance- the best match
-        return bestMatch.method;
+        ArrayList<Pair<Class<?>, Method>> arrayPairs=new ArrayList<>(pairs);
+        Method bestMatch=arrayPairs.get(0).getValue();
+        return bestMatch;
+    }
+    public static List<Method> getClosestMethods(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
+        return pairsToMethodList(getClosestMethodsAsPairs(filteredMethods,classMap,args));
+    }
+    private static List<Method> pairsToMethodList(Collection<Pair<Class<?>, Method>> pairs){
+        return pairs.stream().map(pair-> pair.getValue()).collect(Collectors.toList());
     }
 
     /**
