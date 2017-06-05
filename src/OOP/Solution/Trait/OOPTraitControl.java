@@ -5,6 +5,7 @@ import OOP.Provided.Trait.OOPBadClass;
 import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Provided.Trait.OOPTraitMissingImpl;
+import OOP.Tests.Trait.Example.TraitCollector;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -91,10 +92,18 @@ public class OOPTraitControl {
         List<Method> allMethods = getAllOurMethods(traitCollector);
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName,implemented),args);
-
-        Method toInvoke = null;
         try {
-            toInvoke = getBestMatch( matches, classMap, args);
+            List<Method> candidates = getClosestMethods(matches, classMap, args);
+            if(candidates.size()==0)
+                throw maybeSomeError;
+            Method randMethod = candidates.get(0);
+            if(!candidates.stream().allMatch(M -> {return (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M,randMethod));}))
+                throw new OOPTraitConflict(randMethod);
+            Method toInvoke = null;
+            try {
+                toInvoke = TraitCollector.class.getMethod(randMethod.getName(),randMethod.getParameterTypes());
+            } catch (NoSuchMethodException e) {
+            }
             OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
             toInvoke = matches.stream().filter(m -> classMap.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
 
