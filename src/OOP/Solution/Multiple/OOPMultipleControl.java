@@ -22,6 +22,7 @@ public class OOPMultipleControl {
     private Class<?> interfaceClass;
     private File sourceFile;
 
+    //Additional fields
     Map<Class<?>, Object> interfaceToObjectMapper;
     Map<Method, Class<?>> methodToClassMap;
 
@@ -51,18 +52,17 @@ public class OOPMultipleControl {
             throw new OOPBadClass(notAnnotatedClasses.get(0));
     }
 
-    private void fillMaps() {
-        interfaceToObjectMapper = new Hashtable<>();
-        fillMaps(interfaceToObjectMapper);
-    }
 
-    private void fillMaps(Map<Class<?>, Object> interfaceToObject) {
+
+    private void fillMaps() {
         //fills the method to class map
         methodToClassMap=mapMethodToClass(interfaceClass.getInterfaces());
+
+        interfaceToObjectMapper = new Hashtable<>();
         //fills the interface to object map
         Collection<Class<?>> allClasses = methodToClassMap.values();
         List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(OOPMultipleInterface.class)).collect(Collectors.toList());
-        annotatedClasses.forEach(clazz -> interfaceToObject.put(clazz, getInstanceByConvention(clazz)));
+        annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
     }
 
     private void validateForCommonParent() throws OOPInherentAmbiguity {
