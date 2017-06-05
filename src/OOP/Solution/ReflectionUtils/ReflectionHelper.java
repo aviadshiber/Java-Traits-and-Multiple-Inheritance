@@ -53,7 +53,7 @@ public class ReflectionHelper {
         return classMap;
     }
 
-    public static Object invokeMethod(Method method,Object obj,Object... args){
+    public static Object invokeMethod(Object obj,Method method,Object... args){
         try {
             if(args!=null)
                 return method.invoke(obj,args);

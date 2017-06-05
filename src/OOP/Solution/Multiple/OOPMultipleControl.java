@@ -119,9 +119,13 @@ public class OOPMultipleControl {
         //we search for the best method that match, the method throws exception if Coincidental Ambiguity exist
         Method bestMatch = getBestMatch(filteredMethods, classMap, args);
         Class<?> methodInClass = classMap.get(bestMatch);
-        Object obj = interfaceToObjectMapper.get(methodInClass);
-        Object returnValue = invokeMethod(bestMatch, obj, args);
+        Object obj = getInstanceFromClass(methodInClass);
+        Object returnValue = invokeMethod( obj,bestMatch, args);
         return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
+    }
+
+    private Object getInstanceFromClass(Class<?> methodInClass) {
+       return interfaceToObjectMapper!=null ? interfaceToObjectMapper.get(methodInClass) : getInstanceByConvention(methodInClass);
     }
 
 
