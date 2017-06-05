@@ -3,6 +3,7 @@ package OOP.Solution.ReflectionUtils;
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
 import javafx.util.Pair;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -40,15 +41,16 @@ public class ReflectionHelper {
      * @return the return value of the invoke, or null if IllegalAccessException or InvocationTargetException
      */
     public static Object invokeMethod(Object obj, Method method, Object... args) {
+       Object returnValue=null;
         try {
             if (args != null)
-                return method.invoke(obj, args);
+                returnValue= method.invoke(obj, args);
             else
-                return method.invoke(obj);
+                returnValue= method.invoke(obj);
         } catch (IllegalAccessException | InvocationTargetException e) {
             // e.printStackTrace();
         }
-        return null;
+        return method.getReturnType().equals(Void.class) ? null : returnValue;
     }
 
     /**
@@ -265,6 +267,22 @@ public class ReflectionHelper {
         }
         return pairs;
     }
+
+    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(Class<?> interfaceClass, Class<? extends Annotation> annotation) {
+        //fills the method to class map
+        Map<Method, Class<?>> methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
+
+        Map<Class<?>, Object> interfaceToObjectMapper = new Hashtable<>();
+        //fills the interface to object map
+        Collection<Class<?>> allClasses = methodToClassMapper.values();
+        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
+        for(Class<?> clazz : annotatedClasses){
+            interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz));
+        }
+        return new Pair<>(interfaceToObjectMapper,methodToClassMapper);
+    }
+
+
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
      *

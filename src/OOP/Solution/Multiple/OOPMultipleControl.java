@@ -24,7 +24,7 @@ public class OOPMultipleControl {
 
     //Additional fields
     private Map<Class<?>, Object> interfaceToObjectMapper;
-    private Map<Method, Class<?>> methodToClassMap;
+    private Map<Method, Class<?>> methodToClassMapper;
 
     // DO NOT CHANGE !!!!!!
     public OOPMultipleControl(Class<?> interfaceClass, File sourceFile) {
@@ -38,8 +38,9 @@ public class OOPMultipleControl {
         validateTags(OOPMultipleInterface.class, OOPMultipleMethod.class);
         validateForCommonParent();
         //we need to map each interface to it's instance
-        fillMaps();
-
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(interfaceClass,OOPMultipleInterface.class);
+        interfaceToObjectMapper=pair.getKey();
+        methodToClassMapper=pair.getValue();
     }
 
     private void validateTags(Class<? extends Annotation> typeAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPBadClass {
@@ -54,16 +55,16 @@ public class OOPMultipleControl {
 
 
 
-    private void fillMaps() {
+   /* private void fillMaps(Class<? extends  Annotation> annotation) {
         //fills the method to class map
-        methodToClassMap=mapMethodToClass(interfaceClass.getInterfaces());
+        methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
 
         interfaceToObjectMapper = new Hashtable<>();
         //fills the interface to object map
-        Collection<Class<?>> allClasses = methodToClassMap.values();
-        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(OOPMultipleInterface.class)).collect(Collectors.toList());
+        Collection<Class<?>> allClasses = methodToClassMapper.values();
+        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
         annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
-    }
+    }*/
 
     private void validateForCommonParent() throws OOPInherentAmbiguity {
         Set<Class<?>> interfaceSet = new HashSet<>();
@@ -117,11 +118,11 @@ public class OOPMultipleControl {
         //we map every method to a it's class for later use
         List<Method> filteredMethods = validateCoincidentalAmbiguity(interfaceClass, methodName, args);
         //we search for the best method that match, the method throws exception if Coincidental Ambiguity exist
-        Method bestMatch = getBestMatch(filteredMethods, methodToClassMap, args);
-        Class<?> methodInClass = methodToClassMap.get(bestMatch);
+        Method bestMatch = getBestMatch(filteredMethods, methodToClassMapper, args);
+        Class<?> methodInClass = methodToClassMapper.get(bestMatch);
         Object obj = getInstanceFromClass(methodInClass);
-        Object returnValue = invokeMethod( obj,bestMatch, args);
-        return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
+
+        return invokeMethod( obj,bestMatch, args);
     }
 
     /**
@@ -161,7 +162,7 @@ public class OOPMultipleControl {
         if (collisions.size() > 0) {
             Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
             //we warp it as a pair before throwing
-            collisions.forEach(m -> pairs.add(new Pair<>(methodToClassMap.get(m), m)));
+            collisions.forEach(m -> pairs.add(new Pair<>(methodToClassMapper.get(m), m)));
             throw new OOPCoincidentalAmbiguity(pairs);
         }
         //no collisions were found so we return what we found so far

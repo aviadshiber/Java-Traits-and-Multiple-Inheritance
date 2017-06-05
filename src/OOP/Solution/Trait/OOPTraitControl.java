@@ -5,7 +5,9 @@ import OOP.Provided.Trait.OOPBadClass;
 import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Provided.Trait.OOPTraitMissingImpl;
+import OOP.Solution.Multiple.OOPMultipleInterface;
 import OOP.Tests.Trait.Example.TraitCollector;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -24,6 +26,10 @@ public class OOPTraitControl {
     private Class<?> traitCollector;
     private File sourceFile;
 
+    //Additional fields
+    private Map<Class<?>, Object> interfaceToObjectMapper;
+    private Map<Method, Class<?>> methodToClassMapper;
+
     //TODO: DO NOT CHANGE !!!!!!
     public OOPTraitControl(Class<?> traitCollector, File sourceFile) {
         this.traitCollector = traitCollector;
@@ -32,15 +38,18 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(traitCollector, OOPTraitBehaviour.class);
+        interfaceToObjectMapper = pair.getKey();
+        methodToClassMapper = pair.getValue();
         List<Method> allMethods = getAllOurMethods(traitCollector);
-        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+
+
         List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
-        List<Class<?>> notAnnotatedClass = allMethods.stream().map(classMap::get).filter(C -> {
-            if (C != null) return !C.isAnnotationPresent(OOPTraitBehaviour.class);
-            else return false;
-        }).collect(Collectors.toList());
+        List<Class<?>> notAnnotatedClass = allMethods.stream().map(methodToClassMapper::get).filter(C ->
+                C != null && !C.isAnnotationPresent(OOPTraitBehaviour.class)
+        ).collect(Collectors.toList());
         if (notAnnotatedClass.size() > 0) {
             throw new OOPBadClass(notAnnotatedClass.get(0));
         }
@@ -52,10 +61,23 @@ public class OOPTraitControl {
         }
         for (Method method : allMethods) {
             List<Method> conflicts = implemented.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod)).collect(Collectors.toList());
-            validateResolvedConflicts(conflicts, classMap);
+            validateResolvedConflicts(conflicts, methodToClassMapper);
         }
 
+
     }
+
+
+   /* private void fillMaps(Class<? extends  Annotation> annotation) {
+        //fills the method to class map
+        methodToClassMapper =mapMethodToClass(traitCollector.getInterfaces());
+
+        interfaceToObjectMapper = new Hashtable<>();
+        //fills the interface to object map
+        Collection<Class<?>> allClasses = methodToClassMapper.values();
+        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
+        annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
+    }*/
 
     private void validateResolvedConflicts(List<Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         if (conflicts.size() > 1) {
@@ -86,29 +108,32 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
-        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
 
 
         List<Method> allMethods = getAllOurMethods(traitCollector);
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
-        List<Method> matches = filterByArguments(filterByMethodName(methodName,implemented),args);
+        List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
+
+        List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
+        Method randMethod = candidates.get(0);
+        if (!candidates.stream().allMatch(M -> {
+            return (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod));
+        }))
+            throw new OOPTraitConflict(randMethod);
+
+        return invokeTraitMethod(matches, randMethod, args);
+
+    }
+
+    private Object invokeTraitMethod(List<Method> matches, Method randMethod, Object[] args) {
         try {
-            List<Method> candidates = getClosestMethods(matches, classMap, args);
-            if(candidates.size()==0)
-                throw maybeSomeError;
-            Method randMethod = candidates.get(0);
-            if(!candidates.stream().allMatch(M -> {return (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M,randMethod));}))
-                throw new OOPTraitConflict(randMethod);
-            Method toInvoke = null;
-            try {
-                toInvoke = TraitCollector.class.getMethod(randMethod.getName(),randMethod.getParameterTypes());
-            } catch (NoSuchMethodException e) {
-            }
+            Method toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
             OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
-            toInvoke = matches.stream().filter(m -> classMap.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
-
-        } catch (OOPCoincidentalAmbiguity oopCoincidentalAmbiguity) {
-
+            toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
+            Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
+            Object obj = interfaceToObjectMapper.get(InvokerClass);
+            return invokeMethod(obj, toInvoke, args);
+        } catch (NoSuchMethodException e) {
         }
 
         return null;
