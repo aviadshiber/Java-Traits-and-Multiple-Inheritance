@@ -20,24 +20,6 @@ public class ReflectionHelper {
     private static final String PACKAGE_DELIMITER=".";
 
 
-    /*public static List<Method> getMethodsAnnotatedWith(final Class<?> type, final Class<? extends Annotation> annotation) {
-        final List<Method> methods = new ArrayList<Method>();
-        Class<?> klass = type;
-        while (klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
-            // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
-            final List<Method> allMethods = new ArrayList<Method>(Arrays.asList(klass.getDeclaredMethods()));
-            for (final Method method : allMethods) {
-                if (method.isAnnotationPresent(annotation)) {
-                    Annotation annotInstance = method.getAnnotation(annotation);
-                    // TODO process annotInstance
-                    methods.add(method);
-                }
-            }
-            // move to the upper class in the hierarchy in search for more methods
-            klass = klass.getSuperclass();
-        }
-        return methods;
-    }*/
     public static Map<Method,Class<?>> mapMethodToClass(Class<?>[] superClasses){
         Map<Method,Class<?>> classMap=new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
@@ -49,6 +31,13 @@ public class ReflectionHelper {
         return classMap;
     }
 
+    /**
+     * the method will do object.method(args) in reflection
+     * @param obj object to do the invoke on
+     * @param method the method to invoke
+     * @param args the arguments to invoke (null to use no args)
+     * @return the return value of the invoke, or null if IllegalAccessException or InvocationTargetException
+     */
     public static Object invokeMethod(Object obj,Method method,Object... args){
         try {
             if(args!=null)
@@ -61,6 +50,11 @@ public class ReflectionHelper {
         return null;
     }
 
+    /**
+     * return the instance of the interface/class by the hw convention .
+     * @param clazz the class
+     * @return the instance of that class
+     */
     public static Object getInstanceByConvention(Class<?> clazz) {
         Object obj=null;
         String packageName=clazz.getPackage().getName();
@@ -80,9 +74,7 @@ public class ReflectionHelper {
             //TODO: WHAT IF THE CLASS IS ABSTRACT?? do we care about it?
             try {
                 obj=clazz.newInstance();
-            } catch (InstantiationException e) {
-               // e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                // e.printStackTrace();
             }
 
@@ -90,15 +82,21 @@ public class ReflectionHelper {
         return obj;
     }
 
-    public static Class<?> getClassByConvention(String prefix, String sufix){
-        Class<?> klass=null;
+    /**
+     * return the Class by convention
+     * @param prefix the package
+     * @param suffix the number
+     * @return the class which was found, if no such class was found null will be returned.
+     */
+    public static Class<?> getClassByConvention(String prefix, String suffix){
+        Class<?> clazz=null;
         try {
-           klass=Class.forName(prefix+CLASS_NAME_CONVENTION+sufix);
+           clazz=Class.forName(prefix+CLASS_NAME_CONVENTION+suffix);
 
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
 
         }
-        return klass;
+        return clazz;
     }
 
     /**
@@ -207,19 +205,32 @@ public class ReflectionHelper {
     }
 
 
-
+    /**
+     * the method create a MethodDistance object based on the distance from his arguments.
+     * @param method the method
+     * @param args arguments to compute the distance from
+     * @return MethodDistance object
+     */
     private static MethodDistance createMethodDistanceObject(Method method, Object[] args) {
         int distance = ReflectionHelper.calculateMethodPath(method, args);
         return new MethodDistance(distance, method);
     }
 
+    /**
+     * the method get the best match from the filtered methods which have the shortest path from args to method types.
+     * @param filteredMethods the method which were filtered to be by name and arguments.
+     * @param classMap the actual arguments
+     * @param args the arguments
+     * @return the method which have the best match
+     * @throws OOPCoincidentalAmbiguity
+     */
     public static Method getBestMatch(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
         return getBestMatch(false,filteredMethods,classMap,args);
     }
 
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
-     *
+     * @param skipExceptionCheck skips the exception check if you don't want the method will really throw the exception, and check will be skipped
      * @param filteredMethods the method which were filtered to be by name and arguments.
      * @param args            the actual arguments
      * @return the method which have the best match
@@ -247,6 +258,11 @@ public class ReflectionHelper {
         return bestMatch.method;
     }
 
+    /**
+     * return a set of the collided methods in a list
+     * @param methodList method list
+     * @return a set of the collided methods in a list
+     */
     public static Set<Method> getCollidedMethods(List<Method> methodList) {
         /*
           the class was made to make a set of unique methods only the (comparing is between their arguments)
@@ -275,28 +291,47 @@ public class ReflectionHelper {
         }
 
         //we create special set to compare between methods by their arguments (a sub Set of methodList)
-        Set<MethodComparator> uniqeMethods = new HashSet<>();
-        methodList.forEach(method -> uniqeMethods.add(new MethodComparator(method)));
+        Set<MethodComparator> uniqueMethods = new HashSet<>();
+        methodList.forEach(method -> uniqueMethods.add(new MethodComparator(method)));
         //unwrap it to regular Set
-        Set<Method> regularUniqueMethods = uniqeMethods.stream().map(mc -> mc.method).collect(Collectors.toSet());
+        Set<Method> regularUniqueMethods = uniqueMethods.stream().map(mc -> mc.method).collect(Collectors.toSet());
         Set<Method> allMethods = new HashSet<>();
         //convert methodList to Set
-        methodList.forEach(m -> allMethods.add(m));
+        allMethods.addAll(methodList);
 
         //now we can subtract with the regular equal method which is not by arguments but by class
         allMethods.removeAll(regularUniqueMethods);
         return allMethods;
     }
 
+    /**
+     * the method filter from superClassMethods all the method with methodName
+     * @param methodName method name
+     * @param superClassMethods super class methods
+     * @return a stream of all methods with method name in superClassMethods
+     */
     public static Stream<Method> filterByMethodName(String methodName, List<Method> superClassMethods) {
         return superClassMethods.stream().filter(superClassMethod -> superClassMethod.getName().equals(methodName));
     }
 
+    /**
+     * the method filter all the Method stream which was filtered by name by their arguments equality
+     * (inheritance equality)
+     * @param filteredByName the methods
+     * @param args the argument to filter by
+     * @return a list of all the filtered methods
+     */
     public static List<Method> filterByArguments(Stream<Method> filteredByName, Object[] args) {
         return filteredByName.filter(m -> checkForArgsEquality(m, args)).collect(Collectors.toList());
     }
 
-    public static boolean checkForArgsEquality(Method m, Object[] args) {
+    /**
+     * the method if args can be possibly match with the method types (inheritance equality=co-variance equality)
+     * @param m the method
+     * @param args the arguments
+     * @return true if they are equal, false o.w
+     */
+    private static boolean checkForArgsEquality(Method m, Object[] args) {
         Type[] types = m.getParameterTypes();
         if(types.length==0 )
             return args==null;
@@ -311,7 +346,11 @@ public class ReflectionHelper {
         return true;
     }
 
-
+    /**
+     * the method return all the classes and interfaces until (not include) the Object class.
+     * @param clazz the class
+     * @return a set of all the candidates
+     */
     public  static Set<Class<?>> getAllOurTypes(Class<?> clazz){
         Set<Class<?>> allClasses=new HashSet<>();
         if(clazz!=null && clazz!=Object.class){
@@ -329,11 +368,16 @@ public class ReflectionHelper {
         return allClasses;
     }
 
+    /**
+     * return all the methods until (not include) the Object class.
+     * @param klass the class
+     * @return list of methods
+     */
    public static List<Method> getAllOurMethods(Class<?> klass){
-       final List<Method> methods = new ArrayList<Method>();
+       final List<Method> methods = new ArrayList<>();
        if (klass!=null && klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
            // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
-           final List<Method> allMethods = new ArrayList<Method>(Arrays.asList(klass.getDeclaredMethods()));
+           final List<Method> allMethods = new ArrayList<>(Arrays.asList(klass.getDeclaredMethods()));
            methods.addAll(allMethods);
            // move to the upper class in the hierarchy in search for more methods
            /*if(klass.isInterface()){
