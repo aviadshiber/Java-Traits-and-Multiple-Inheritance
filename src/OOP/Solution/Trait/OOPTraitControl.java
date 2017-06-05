@@ -38,7 +38,7 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(traitCollector, OOPTraitBehaviour.class);
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(traitCollector.getInterfaces(), OOPTraitBehaviour.class);
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         List<Method> allMethods = getAllOurMethods(traitCollector);
@@ -95,15 +95,6 @@ public class OOPTraitControl {
             }
         }
     }
-
-    private boolean isAnnotatedBy(Method m, Class<OOPTraitMethod> oopTraitMethodClass, OOPTraitMethodModifier inter) {
-        if (m.isAnnotationPresent(oopTraitMethodClass)) {
-            OOPTraitMethod mod = m.getAnnotation(oopTraitMethodClass);
-            return mod.modifier().equals(inter);
-        }
-        return false;
-    }
-
 
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)

@@ -21,7 +21,7 @@ public class Example {
         } catch (OOPTraitException e) {
             e.printStackTrace();
         } finally {
-        //    generator.removeSourceFile();
+           generator.removeSourceFile();
         }
     }
 }

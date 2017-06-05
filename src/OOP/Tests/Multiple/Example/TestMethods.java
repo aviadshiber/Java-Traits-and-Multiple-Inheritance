@@ -18,7 +18,7 @@ public class TestMethods {
     public class C extends B{public void f(String a,I2 b){}}
     @Test
     public void testMethods(){
-        Method[] methods=B.class.getMethods();
+        Method[] methods=C.class.getMethods();
         Method method=methods[0];
         Object[] args=new Object[]{"this is a String",new C2()};
         System.out.println(ReflectionHelper.calculateMethodPath(method,args));

@@ -38,7 +38,7 @@ public class OOPMultipleControl {
         validateTags(OOPMultipleInterface.class, OOPMultipleMethod.class);
         validateForCommonParent();
         //we need to map each interface to it's instance
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(interfaceClass,OOPMultipleInterface.class);
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(interfaceClass.getInterfaces(),OOPMultipleInterface.class);
         interfaceToObjectMapper=pair.getKey();
         methodToClassMapper=pair.getValue();
     }

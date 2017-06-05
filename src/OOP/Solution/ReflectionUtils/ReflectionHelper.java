@@ -1,6 +1,8 @@
 package OOP.Solution.ReflectionUtils;
 
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
+import OOP.Solution.Trait.OOPTraitMethod;
+import OOP.Solution.Trait.OOPTraitMethodModifier;
 import javafx.util.Pair;
 
 import java.lang.annotation.Annotation;
@@ -268,10 +270,17 @@ public class ReflectionHelper {
         return pairs;
     }
 
-    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(Class<?> interfaceClass, Class<? extends Annotation> annotation) {
+    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait,Class<?> interfaceClass, Class<? extends Annotation> annotation) {
         //fills the method to class map
         Map<Method, Class<?>> methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
-
+        if(isTrait){
+            Map<Method, Class<?>> traitMethodToClassMapper = new Hashtable<>();
+            List<Method> implemented = methodToClassMapper.keySet().stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+            for(Method m : implemented){
+                traitMethodToClassMapper.put(m,methodToClassMapper.get(m));
+            }
+            methodToClassMapper = traitMethodToClassMapper;
+        }
         Map<Class<?>, Object> interfaceToObjectMapper = new Hashtable<>();
         //fills the interface to object map
         Collection<Class<?>> allClasses = methodToClassMapper.values();
@@ -308,6 +317,13 @@ public class ReflectionHelper {
     }
     private static List<Method> pairsToMethodList(Collection<Pair<Class<?>, Method>> pairs){
         return pairs.stream().map(pair-> pair.getValue()).collect(Collectors.toList());
+    }
+    public static boolean isAnnotatedBy(Method m, Class<OOPTraitMethod> oopTraitMethodClass, OOPTraitMethodModifier inter) {
+        if (m.isAnnotationPresent(oopTraitMethodClass)) {
+            OOPTraitMethod mod = m.getAnnotation(oopTraitMethodClass);
+            return mod.modifier().equals(inter);
+        }
+        return false;
     }
 
     /**
