@@ -23,8 +23,8 @@ public class OOPMultipleControl {
     private File sourceFile;
 
     //Additional fields
-    Map<Class<?>, Object> interfaceToObjectMapper;
-    Map<Method, Class<?>> methodToClassMap;
+    private Map<Class<?>, Object> interfaceToObjectMapper;
+    private Map<Method, Class<?>> methodToClassMap;
 
     // DO NOT CHANGE !!!!!!
     public OOPMultipleControl(Class<?> interfaceClass, File sourceFile) {
