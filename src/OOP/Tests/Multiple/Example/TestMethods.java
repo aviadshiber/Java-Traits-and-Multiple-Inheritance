@@ -13,15 +13,16 @@ import java.lang.reflect.Type;
  */
 
 public class TestMethods {
-    public class A{public void f(I1 a,I2 b){}}
-    public class B extends A{public void f(I1 a,I2 b){}}
+    public class A{public void f(Object a,Object b){}}
+    public class B extends A{public void f(CharSequence a,Object b){}}
+    public class C extends B{public void f(String a,I2 b){}}
     @Test
     public void testMethods(){
-       /* Method[] methods=B.class.getMethods();
+        Method[] methods=B.class.getMethods();
         Method method=methods[0];
-        Object[] args=new Object[]{new C3(),new C2()};
-        ReflectionHelper.calculateMethodPath(method,args);*/
-        System.out.println(I1.class.getSuperclass());
+        Object[] args=new Object[]{"this is a String",new C2()};
+        System.out.println(ReflectionHelper.calculateMethodPath(method,args));
+
 
     }
 }

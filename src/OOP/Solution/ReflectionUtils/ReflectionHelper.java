@@ -1,14 +1,10 @@
 package OOP.Solution.ReflectionUtils;
 
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
-import OOP.Provided.Multiple.OOPInherentAmbiguity;
-import OOP.Solution.Multiple.OOPMultipleControl;
 import javafx.util.Pair;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -120,36 +116,43 @@ public class ReflectionHelper {
         for(int i=0;i<args.length;i++){
             Object argument=args[i];
             Class<?> type=methodTypes[i];
-            if(type.isInstance(argument)){
-                Class<?> argumentClass=argument.getClass();
-
-                if(type.isInterface()){
+            Class<?> argumentClass=argument.getClass();
+            //if argument class is type than distance is 0 or
+            //and if the argument is not instance of type we skip to next iteration
+            if(!type.equals(argumentClass) && type.isInstance(argument)){
                     boolean wasTypeBeenFound=false;
                     while(!wasTypeBeenFound){
-                        List<Class<?>> foundedInterfaces=Arrays.stream(argumentClass.getInterfaces()).filter(type::isAssignableFrom).collect(Collectors.toList());
-                        while(foundedInterfaces.size()>0){
+                        List<Class<?>> foundedInterfaces= getInterfacesAssignableFrom(argumentClass.getInterfaces(),type);
+                        while(isThereInterfacesToScan(foundedInterfaces)){
+
                             //only one can be found
                             Class<?> foundedInterface=foundedInterfaces.get(0);
-                            if(foundedInterface.equals(type))
-                                wasTypeBeenFound=true;
+                            if(foundedInterface.equals(type)) {
+                                wasTypeBeenFound = true;
+                            }
                             totalDistance++;
-                            foundedInterfaces=Arrays.stream(foundedInterface.getInterfaces()).filter(type::isAssignableFrom).collect(Collectors.toList());
+                            foundedInterfaces=getInterfacesAssignableFrom(foundedInterface.getInterfaces(),type);
                         }
-                        if(foundedInterfaces.size()==0 && !wasTypeBeenFound){
+                        //if not interfaces were found and we still have not found it, search in in class hierarchy
+                        if(!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound){
                             argumentClass=argumentClass.getSuperclass();
+                            totalDistance++;
                         }
+                        if(argumentClass.equals(type))
+                            wasTypeBeenFound=true;
                     }
-
-                }else{ //the type is a class , so we need to search only in class path
-                    while(argumentClass.getSuperclass()!=null && argumentClass.getSuperclass()!=Object.class && !argumentClass.equals(type) ){
-                        totalDistance++;
-                        argumentClass=argumentClass.getSuperclass();
-                    }
-                }
 
             }
         }
         return totalDistance;
+    }
+
+    private static List<Class<?>> getInterfacesAssignableFrom(Class<?>[] argumentInterfaces, Class<?> type) {
+        return (argumentInterfaces!=null) ? Arrays.stream(argumentInterfaces).filter(type::isAssignableFrom).collect(Collectors.toList()) :null;
+    }
+
+    private static boolean isThereInterfacesToScan(List<Class<?>> foundedInterfaces) {
+        return (foundedInterfaces!= null && foundedInterfaces.size()>0);
     }
 
 
