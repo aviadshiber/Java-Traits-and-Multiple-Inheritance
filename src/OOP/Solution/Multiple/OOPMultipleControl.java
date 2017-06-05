@@ -124,11 +124,26 @@ public class OOPMultipleControl {
         return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
     }
 
-    private Object getInstanceFromClass(Class<?> methodInClass) {
-       return interfaceToObjectMapper!=null ? interfaceToObjectMapper.get(methodInClass) : getInstanceByConvention(methodInClass);
+    /**
+     * the method will create an instance of the class, based on the interfaceToObjectMapper if can,
+     * if not it will create new.
+     * @param clazz the class/interface
+     * @return object instance of the clazz
+     */
+    private Object getInstanceFromClass(Class<?> clazz) {
+       return interfaceToObjectMapper!=null ? interfaceToObjectMapper.get(clazz) : getInstanceByConvention(clazz);
     }
 
 
+    /**
+     * the method validates for Coincidental Ambiguity in the superClasses(& super interfaces) of interfaceClass
+     * with methodName and arguments
+     * @param interfaceClass the interface class
+     * @param methodName the method name
+     * @param args the arguments
+     * @return a list of methods which were filtered by method name and arguments
+     * @throws OOPCoincidentalAmbiguity if there is ambiguity
+     */
     private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass
                                                        , String methodName, Object... args) throws OOPCoincidentalAmbiguity {
         Class<?>[] superClasses = interfaceClass.getInterfaces();
