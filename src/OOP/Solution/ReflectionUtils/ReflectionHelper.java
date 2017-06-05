@@ -118,11 +118,11 @@ public class ReflectionHelper {
             Class<?> type=methodTypes[i];
             Class<?> argumentClass=argument.getClass();
             //if argument class is type than distance is 0 or
-            //and if the argument is not instance of type we skip to next iteration
+            // the argument is not instance of type we skip to next argument
             if(!type.equals(argumentClass) && type.isInstance(argument)){
                     boolean wasTypeBeenFound=false;
                     while(!wasTypeBeenFound){
-                        List<Class<?>> foundedInterfaces= getInterfacesAssignableFrom(argumentClass.getInterfaces(),type);
+                        List<Class<?>> foundedInterfaces= getInterfacesAssignableFrom(argumentClass,type);
                         while(isThereInterfacesToScan(foundedInterfaces)){
 
                             //only one can be found
@@ -131,7 +131,7 @@ public class ReflectionHelper {
                                 wasTypeBeenFound = true;
                             }
                             totalDistance++;
-                            foundedInterfaces=getInterfacesAssignableFrom(foundedInterface.getInterfaces(),type);
+                            foundedInterfaces=getInterfacesAssignableFrom(foundedInterface,type);
                         }
                         //if not interfaces were found and we still have not found it, search in in class hierarchy
                         if(!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound){
@@ -147,10 +147,22 @@ public class ReflectionHelper {
         return totalDistance;
     }
 
-    private static List<Class<?>> getInterfacesAssignableFrom(Class<?>[] argumentInterfaces, Class<?> type) {
-        return (argumentInterfaces!=null) ? Arrays.stream(argumentInterfaces).filter(type::isAssignableFrom).collect(Collectors.toList()) :null;
+    /**
+     * gets all the interfaces which argumentClass inherent from type
+     * @param argumentClass the argument class
+     * @param type the type
+     * @return interfaces
+     */
+    private static List<Class<?>> getInterfacesAssignableFrom(Class<?> argumentClass, Class<?> type) {
+        Class<?>[] interfaces=argumentClass.getInterfaces();
+        return (interfaces!=null) ? Arrays.stream(interfaces).filter(type::isAssignableFrom).collect(Collectors.toList()) :null;
     }
 
+    /**
+     * the method return true if is there any interfaces to scan in the list.
+     * @param foundedInterfaces the interfaces
+     * @return true if is there any interfaces to scan in the list, false o.w
+     */
     private static boolean isThereInterfacesToScan(List<Class<?>> foundedInterfaces) {
         return (foundedInterfaces!= null && foundedInterfaces.size()>0);
     }
