@@ -200,7 +200,7 @@ public class ReflectionHelper {
     /**
      * a wrapper class to save the methods by their distance
      */
-    private static class MethodDistance {
+    public static class MethodDistance {
         int distance;
         Method method;
 
@@ -237,6 +237,11 @@ public class ReflectionHelper {
         return getBestMatch(false, filteredMethods, classMap, args);
     }
 
+    public static  PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
+        PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
+        filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
+        return queue;
+    }
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
      *
@@ -246,8 +251,7 @@ public class ReflectionHelper {
      * @return the method which have the best match
      */
     public static Method getBestMatch(boolean skipExceptionCheck, List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
-        PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
-        filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
+        PriorityQueue<MethodDistance> queue = getAllBestMatches(filteredMethods,classMap,args);
         MethodDistance bestMatch = queue.poll();
         //if there is more than one match we need to see if there are equals matches, if there are some then there is Coincidental Ambiguity
         if (!skipExceptionCheck && !queue.isEmpty()) {
