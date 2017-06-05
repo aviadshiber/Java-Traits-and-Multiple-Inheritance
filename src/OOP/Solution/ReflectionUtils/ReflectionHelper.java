@@ -297,10 +297,26 @@ public class ReflectionHelper {
     }
 
 
+    public  static Set<Class<?>> getAllOurTypes(Class<?> clazz){
+        Set<Class<?>> allClasses=new HashSet<>();
+        if(clazz!=null && clazz!=Object.class){
+            allClasses.addAll(Arrays.asList(clazz.getInterfaces()));
+            Class<?> superClass=clazz.getSuperclass();
+            if(superClass!=null && superClass!=Object.class){
+                allClasses.add(superClass);
+                allClasses.addAll(getAllOurTypes(superClass));
+            }
+            for (Class<?> interFace : clazz.getInterfaces()){
+                allClasses.addAll(getAllOurTypes(interFace));
+            }
+
+        }
+        return allClasses;
+    }
 
    public static List<Method> getAllOurMethods(Class<?> klass){
        final List<Method> methods = new ArrayList<Method>();
-       if (klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
+       if (klass!=null && klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
            // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
            final List<Method> allMethods = new ArrayList<Method>(Arrays.asList(klass.getDeclaredMethods()));
            methods.addAll(allMethods);

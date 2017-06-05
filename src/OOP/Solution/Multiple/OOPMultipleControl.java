@@ -1,5 +1,6 @@
 package OOP.Solution.Multiple;
 
+import OOP.Provided.Multiple.OOPBadClass;
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
 import OOP.Provided.Multiple.OOPInherentAmbiguity;
 import OOP.Provided.Multiple.OOPMultipleException;
@@ -22,7 +23,7 @@ public class OOPMultipleControl {
     private Class<?> interfaceClass;
     private File sourceFile;
 
-    Map<Class<?>,Object> interfaceToObject;
+    Map<Class<?>, Object> interfaceToObjectMapper;
 
     // DO NOT CHANGE !!!!!!
     public OOPMultipleControl(Class<?> interfaceClass, File sourceFile) {
@@ -32,18 +33,39 @@ public class OOPMultipleControl {
 
     //need to scan for common parent and throw exception if there is one.
     public void validateInheritanceGraph() throws OOPMultipleException {
-        interfaceToObject=new Hashtable<>();
-        fillMapInterfaceToObject(interfaceToObject);
-        Set<Class<?>> interfaceSet = new HashSet<>();
-        validateForCommonParent(interfaceClass, interfaceSet
-                , OOPMultipleInterface.class, OOPMultipleMethod.class);
+
+        validateTags(OOPMultipleInterface.class, OOPMultipleMethod.class);
+        validateForCommonParent();
+        //we need to map each interface to it's instance
+        fillMapInterfaceToObject();
+    }
+
+    private void validateTags(Class<? extends Annotation> typeAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPBadClass {
+        List<Method> allMethods = getAllOurMethods(interfaceClass);
+        List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
+        if (notAnnotatedMethods.size() > 0)
+            throw new OOPBadClass(notAnnotatedMethods.get(0));
+        List<Class<?>> notAnnotatedClasses = getAllOurTypes(interfaceClass).stream().filter(c -> c != null && !c.isAnnotationPresent(typeAnnotation)).collect(Collectors.toList());
+        if (notAnnotatedClasses.size() > 0)
+            throw new OOPBadClass(notAnnotatedClasses.get(0));
+    }
+
+    private void fillMapInterfaceToObject() {
+        interfaceToObjectMapper = new Hashtable<>();
+        fillMapInterfaceToObject(interfaceToObjectMapper);
     }
 
     private void fillMapInterfaceToObject(Map<Class<?>, Object> interfaceToObject) {
-        Map<Method,Class<?>> classMap=mapMethodToClass(interfaceClass.getInterfaces());
-        Collection<Class<?>> allClasses=classMap.values();
-       List<Class<?>> annotatedClasses= allClasses.stream().filter(c-> c.isAnnotationPresent(OOPMultipleInterface.class)).collect(Collectors.toList());
-        annotatedClasses.forEach(clazz->interfaceToObject.put(clazz,getInstanceByConvention(clazz)));
+        Map<Method, Class<?>> classMap = mapMethodToClass(interfaceClass.getInterfaces());
+        Collection<Class<?>> allClasses = classMap.values();
+        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(OOPMultipleInterface.class)).collect(Collectors.toList());
+        annotatedClasses.forEach(clazz -> interfaceToObject.put(clazz, getInstanceByConvention(clazz)));
+    }
+
+    private void validateForCommonParent() throws OOPInherentAmbiguity {
+        Set<Class<?>> interfaceSet = new HashSet<>();
+        validateForCommonParent(interfaceClass, interfaceSet
+                , OOPMultipleInterface.class, OOPMultipleMethod.class);
     }
 
     /**
@@ -83,7 +105,7 @@ public class OOPMultipleControl {
      * find the best match to it, and invokes it!
      *
      * @param methodName the method name
-     * @param args the arguments
+     * @param args       the arguments
      * @return the object that we invoke on
      * @throws OOPMultipleException the exception of multiple inheritance
      */
@@ -94,16 +116,13 @@ public class OOPMultipleControl {
 
         List<Method> filteredMethods = validateCoincidentalAmbiguity(interfaceClass, classMap, methodName
                 , args);
+        //we search for the best method that match, the method throws exception if Coincidental Ambiguity exist
         Method bestMatch = getBestMatch(filteredMethods, classMap, args);
         Class<?> methodInClass = classMap.get(bestMatch);
-        Object obj=interfaceToObject.get(methodInClass);
-        //Object obj = ReflectionHelper.getInstanceByConvention(methodInClass);
-        Object returnValue= invokeMethod(bestMatch, obj, args);
+        Object obj = interfaceToObjectMapper.get(methodInClass);
+        Object returnValue = invokeMethod(bestMatch, obj, args);
         return bestMatch.getReturnType().equals(Void.class) ? null : returnValue;
     }
-
-
-
 
 
     private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass,

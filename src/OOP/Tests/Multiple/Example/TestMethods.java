@@ -17,9 +17,11 @@ public class TestMethods {
     public class B extends A{public void f(I1 a,I2 b){}}
     @Test
     public void testMethods(){
-        Method[] methods=B.class.getMethods();
+       /* Method[] methods=B.class.getMethods();
         Method method=methods[0];
         Object[] args=new Object[]{new C3(),new C2()};
-        ReflectionHelper.calculateMethodPath(method,args);
+        ReflectionHelper.calculateMethodPath(method,args);*/
+        System.out.println(I1.class.getSuperclass());
+
     }
 }
