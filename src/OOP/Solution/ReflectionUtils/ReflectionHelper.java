@@ -21,6 +21,7 @@ public class ReflectionHelper {
     private static final String CLASS_NAME_CONVENTION = "C";
     private static final String INTERFACE_NAME_CONVENTION = "I";
     private static final String PACKAGE_DELIMITER = ".";
+    public static final String TRAIT_NAME_CONVENTION = "T";
 
 
     public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
@@ -61,11 +62,12 @@ public class ReflectionHelper {
      * @param clazz the class
      * @return the instance of that class
      */
-    public static Object getInstanceByConvention(Class<?> clazz) {
+    public static Object getInstanceByConvention(boolean isTrait,Class<?> clazz) {
         Object obj = null;
         String packageName = clazz.getPackage().getName();
         String className = clazz.getSimpleName();
-        if (clazz.isInterface() && className.startsWith(INTERFACE_NAME_CONVENTION)) {
+        String nameConvention=isTrait? TRAIT_NAME_CONVENTION :INTERFACE_NAME_CONVENTION;
+        if (clazz.isInterface() && className.startsWith(nameConvention)) {
             //extracting the interface number
             String interfaceNumber = className.substring(1);
             Class<?> klass = ReflectionHelper.getClassByConvention(packageName + PACKAGE_DELIMITER, interfaceNumber);
@@ -286,7 +288,7 @@ public class ReflectionHelper {
         Collection<Class<?>> allClasses = methodToClassMapper.values();
         List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
         for(Class<?> clazz : annotatedClasses){
-            interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz));
+            interfaceToObjectMapper.put(clazz, getInstanceByConvention(isTrait,clazz));
         }
         return new Pair<>(interfaceToObjectMapper,methodToClassMapper);
     }
