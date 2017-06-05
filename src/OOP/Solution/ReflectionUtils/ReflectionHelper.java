@@ -259,7 +259,7 @@ public class ReflectionHelper {
     }
 
     /**
-     * return a set of the collided methods in a list
+     * return a set of the collided methods(methods which have the same name and arguments) from a list
      * @param methodList method list
      * @return a set of the collided methods in a list
      */
@@ -281,7 +281,7 @@ public class ReflectionHelper {
 
                 MethodComparator that = (MethodComparator) o;
 
-                return method != null ? ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
+                return method != null ? this.method.getName().equals(that.method.getName())&& ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
             }
 
             @Override
