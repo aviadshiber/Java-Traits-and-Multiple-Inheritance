@@ -15,67 +15,69 @@ import java.util.stream.Stream;
  */
 public class ReflectionHelper {
 
-    private static final String CLASS_NAME_CONVENTION="C";
-    private static final String INTERFACE_NAME_CONVENTION="I";
-    private static final String PACKAGE_DELIMITER=".";
+    private static final String CLASS_NAME_CONVENTION = "C";
+    private static final String INTERFACE_NAME_CONVENTION = "I";
+    private static final String PACKAGE_DELIMITER = ".";
 
 
-    public static Map<Method,Class<?>> mapMethodToClass(Class<?>[] superClasses){
-        Map<Method,Class<?>> classMap=new Hashtable<>();
+    public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
+        Map<Method, Class<?>> classMap = new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
-        for(Class<?> superClass : superClasses){
+        for (Class<?> superClass : superClasses) {
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
             //for later use we need to map each method to it's class
-            superClassMethods.forEach(m-> classMap.put(m,superClass));
+            superClassMethods.forEach(m -> classMap.put(m, superClass));
         }
         return classMap;
     }
 
     /**
      * the method will do object.method(args) in reflection
-     * @param obj object to do the invoke on
+     *
+     * @param obj    object to do the invoke on
      * @param method the method to invoke
-     * @param args the arguments to invoke (null to use no args)
+     * @param args   the arguments to invoke (null to use no args)
      * @return the return value of the invoke, or null if IllegalAccessException or InvocationTargetException
      */
-    public static Object invokeMethod(Object obj,Method method,Object... args){
+    public static Object invokeMethod(Object obj, Method method, Object... args) {
         try {
-            if(args!=null)
-                return method.invoke(obj,args);
+            if (args != null)
+                return method.invoke(obj, args);
             else
                 return method.invoke(obj);
         } catch (IllegalAccessException | InvocationTargetException e) {
-           // e.printStackTrace();
+            // e.printStackTrace();
         }
         return null;
     }
 
     /**
      * return the instance of the interface/class by the hw convention .
+     *
      * @param clazz the class
      * @return the instance of that class
      */
     public static Object getInstanceByConvention(Class<?> clazz) {
-        Object obj=null;
-        String packageName=clazz.getPackage().getName();
-        String className=clazz.getSimpleName();
-        if(clazz.isInterface() && className.startsWith(INTERFACE_NAME_CONVENTION)){
+        Object obj = null;
+        String packageName = clazz.getPackage().getName();
+        String className = clazz.getSimpleName();
+        if (clazz.isInterface() && className.startsWith(INTERFACE_NAME_CONVENTION)) {
             //extracting the interface number
-            String interfaceNumber=className.substring(1);
-            Class<?> klass=ReflectionHelper.getClassByConvention(packageName+PACKAGE_DELIMITER,interfaceNumber);
+            String interfaceNumber = className.substring(1);
+            Class<?> klass = ReflectionHelper.getClassByConvention(packageName + PACKAGE_DELIMITER, interfaceNumber);
             try {
-                if(klass!=null)
-                    obj=klass.newInstance();
+                if (klass != null)
+                    obj = klass.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
                 //e.printStackTrace();
             }
 
-        }else if(clazz.getName().startsWith(CLASS_NAME_CONVENTION)){
+        } else if (clazz.getName().startsWith(CLASS_NAME_CONVENTION)) {
             //TODO: WHAT IF THE CLASS IS ABSTRACT?? do we care about it?
             try {
-                obj=clazz.newInstance();
+                obj = clazz.newInstance();
             } catch (InstantiationException | IllegalAccessException e) {
-               // e.printStackTrace();
+                // e.printStackTrace();
             }
 
         }
@@ -84,14 +86,15 @@ public class ReflectionHelper {
 
     /**
      * return the Class by convention
+     *
      * @param prefix the package
      * @param suffix the number
      * @return the class which was found, if no such class was found null will be returned.
      */
-    public static Class<?> getClassByConvention(String prefix, String suffix){
-        Class<?> clazz=null;
+    public static Class<?> getClassByConvention(String prefix, String suffix) {
+        Class<?> clazz = null;
         try {
-           clazz=Class.forName(prefix+CLASS_NAME_CONVENTION+suffix);
+            clazz = Class.forName(prefix + CLASS_NAME_CONVENTION + suffix);
 
         } catch (ClassNotFoundException ignored) {
 
@@ -101,44 +104,46 @@ public class ReflectionHelper {
 
     /**
      * the method calculates the total distance of each argument from the method actual types.
+     * ******the method assumes that the method have co-variance conformance with the args at least.****
+     *
      * @param method the method to calculate the distance from args
-     * @param args the arguments
+     * @param args   the arguments
      * @return the distance
      */
-    public static int calculateMethodPath(Method method,Object ...args){
-        if(args==null)
+    public static int calculateMethodPath(Method method, Object... args) {
+        if (args == null)
             return 0;
-        int totalDistance=0;
-        Class<?>[] methodTypes=method.getParameterTypes();
+        int totalDistance = 0;
+        Class<?>[] methodTypes = method.getParameterTypes();
 
-        for(int i=0;i<args.length;i++){
-            Object argument=args[i];
-            Class<?> type=methodTypes[i];
-            Class<?> argumentClass=argument.getClass();
+        for (int i = 0; i < args.length; i++) {
+            Object argument = args[i];
+            Class<?> type = methodTypes[i];
+            Class<?> argumentClass = argument.getClass();
             //if argument class is type than distance is 0 or
             // the argument is not instance of type we skip to next argument
-            if(!type.equals(argumentClass) && type.isInstance(argument)){
-                    boolean wasTypeBeenFound=false;
-                    while(!wasTypeBeenFound){
-                        List<Class<?>> foundedInterfaces= getInterfacesAssignableFrom(argumentClass,type);
-                        while(isThereInterfacesToScan(foundedInterfaces)){
+            if (!type.equals(argumentClass) && type.isInstance(argument)) {
+                boolean wasTypeBeenFound = false;
+                while (!wasTypeBeenFound) {
+                    List<Class<?>> foundedInterfaces = getInterfacesAssignableFrom(argumentClass, type);
+                    while (isThereInterfacesToScan(foundedInterfaces)) {
 
-                            //only one can be found
-                            Class<?> foundedInterface=foundedInterfaces.get(0);
-                            if(foundedInterface.equals(type)) {
-                                wasTypeBeenFound = true;
-                            }
-                            totalDistance++;
-                            foundedInterfaces=getInterfacesAssignableFrom(foundedInterface,type);
+                        //only one can be found
+                        Class<?> foundedInterface = foundedInterfaces.get(0);
+                        if (foundedInterface.equals(type)) {
+                            wasTypeBeenFound = true;
                         }
-                        //if not interfaces were found and we still have not found it, search in in class hierarchy
-                        if(!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound){
-                            argumentClass=argumentClass.getSuperclass();
-                            totalDistance++;
-                        }
-                        if(argumentClass.equals(type))
-                            wasTypeBeenFound=true;
+                        totalDistance++;
+                        foundedInterfaces = getInterfacesAssignableFrom(foundedInterface, type);
                     }
+                    //if not interfaces were found and we still have not found it, search in in class hierarchy
+                    if (!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound) {
+                        argumentClass = argumentClass.getSuperclass();
+                        totalDistance++;
+                    }
+                    if (argumentClass.equals(type))
+                        wasTypeBeenFound = true;
+                }
 
             }
         }
@@ -147,22 +152,24 @@ public class ReflectionHelper {
 
     /**
      * gets all the interfaces which argumentClass inherent from type
+     *
      * @param argumentClass the argument class
-     * @param type the type
+     * @param type          the type
      * @return interfaces
      */
     private static List<Class<?>> getInterfacesAssignableFrom(Class<?> argumentClass, Class<?> type) {
-        Class<?>[] interfaces=argumentClass.getInterfaces();
-        return (interfaces!=null) ? Arrays.stream(interfaces).filter(type::isAssignableFrom).collect(Collectors.toList()) :null;
+        Class<?>[] interfaces = argumentClass.getInterfaces();
+        return (interfaces != null) ? Arrays.stream(interfaces).filter(type::isAssignableFrom).collect(Collectors.toList()) : null;
     }
 
     /**
      * the method return true if is there any interfaces to scan in the list.
+     *
      * @param foundedInterfaces the interfaces
      * @return true if is there any interfaces to scan in the list, false o.w
      */
     private static boolean isThereInterfacesToScan(List<Class<?>> foundedInterfaces) {
-        return (foundedInterfaces!= null && foundedInterfaces.size()>0);
+        return (foundedInterfaces != null && foundedInterfaces.size() > 0);
     }
 
 
@@ -207,8 +214,9 @@ public class ReflectionHelper {
 
     /**
      * the method create a MethodDistance object based on the distance from his arguments.
+     *
      * @param method the method
-     * @param args arguments to compute the distance from
+     * @param args   arguments to compute the distance from
      * @return MethodDistance object
      */
     private static MethodDistance createMethodDistanceObject(Method method, Object[] args) {
@@ -218,30 +226,32 @@ public class ReflectionHelper {
 
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
+     *
      * @param filteredMethods the method which were filtered to be by name and arguments.
-     * @param classMap the actual arguments
-     * @param args the arguments
+     * @param classMap        the actual arguments
+     * @param args            the arguments
      * @return the method which have the best match
      * @throws OOPCoincidentalAmbiguity
      */
     public static Method getBestMatch(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
-        return getBestMatch(false,filteredMethods,classMap,args);
+        return getBestMatch(false, filteredMethods, classMap, args);
     }
 
     /**
      * the method get the best match from the filtered methods which have the shortest path from args to method types.
+     *
      * @param skipExceptionCheck skips the exception check if you don't want the method will really throw the exception, and check will be skipped
-     * @param filteredMethods the method which were filtered to be by name and arguments.
-     * @param args            the actual arguments
+     * @param filteredMethods    the method which were filtered to be by name and arguments.
+     * @param args               the actual arguments
      * @return the method which have the best match
      */
-    public static Method getBestMatch(boolean skipExceptionCheck,List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
+    public static Method getBestMatch(boolean skipExceptionCheck, List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
         PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
         filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
         MethodDistance bestMatch = queue.poll();
         //if there is more than one match we need to see if there are equals matches, if there are some then there is Coincidental Ambiguity
         if (!skipExceptionCheck && !queue.isEmpty()) {
-           MethodDistance nextMatch = queue.poll();
+            MethodDistance nextMatch = queue.poll();
             Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
             pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
             while (nextMatch.distance == bestMatch.distance) {
@@ -260,6 +270,7 @@ public class ReflectionHelper {
 
     /**
      * return a set of the collided methods(methods which have the same name and arguments) from a list
+     *
      * @param methodList method list
      * @return a set of the collided methods in a list
      */
@@ -270,7 +281,7 @@ public class ReflectionHelper {
         class MethodComparator {
             Method method;
 
-             MethodComparator(Method method) {
+            MethodComparator(Method method) {
                 this.method = method;
             }
 
@@ -281,7 +292,7 @@ public class ReflectionHelper {
 
                 MethodComparator that = (MethodComparator) o;
 
-                return method != null ? this.method.getName().equals(that.method.getName())&& ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
+                return method != null ? this.method.getName().equals(that.method.getName()) && ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
             }
 
             @Override
@@ -306,7 +317,8 @@ public class ReflectionHelper {
 
     /**
      * the method filter from superClassMethods all the method with methodName
-     * @param methodName method name
+     *
+     * @param methodName        method name
      * @param superClassMethods super class methods
      * @return a stream of all methods with method name in superClassMethods
      */
@@ -317,8 +329,9 @@ public class ReflectionHelper {
     /**
      * the method filter all the Method stream which was filtered by name by their arguments equality
      * (inheritance equality)
+     *
      * @param filteredByName the methods
-     * @param args the argument to filter by
+     * @param args           the argument to filter by
      * @return a list of all the filtered methods
      */
     public static List<Method> filterByArguments(Stream<Method> filteredByName, Object[] args) {
@@ -327,18 +340,19 @@ public class ReflectionHelper {
 
     /**
      * the method if args can be possibly match with the method types (inheritance equality=co-variance equality)
-     * @param m the method
+     *
+     * @param m    the method
      * @param args the arguments
      * @return true if they are equal, false o.w
      */
     private static boolean checkForArgsEquality(Method m, Object[] args) {
-        Type[] types = m.getParameterTypes();
-        if(types.length==0 )
-            return args==null;
+        Class<?>[] types = m.getParameterTypes();
+        if (types.length == 0)
+            return args == null;
         if (args.length != types.length)
             return false;
         for (int i = 0; i < types.length; i++) {
-            Class<?> type = types[i].getClass();
+            Class<?> type = types[i];
             Object object = args[i];
             if (!type.isInstance(object))
                 return false;
@@ -348,19 +362,20 @@ public class ReflectionHelper {
 
     /**
      * the method return all the classes and interfaces until (not include) the Object class.
+     *
      * @param clazz the class
      * @return a set of all the candidates
      */
-    public  static Set<Class<?>> getAllOurTypes(Class<?> clazz){
-        Set<Class<?>> allClasses=new HashSet<>();
-        if(clazz!=null && clazz!=Object.class){
+    public static Set<Class<?>> getAllOurTypes(Class<?> clazz) {
+        Set<Class<?>> allClasses = new HashSet<>();
+        if (clazz != null && clazz != Object.class) {
             allClasses.addAll(Arrays.asList(clazz.getInterfaces()));
-            Class<?> superClass=clazz.getSuperclass();
-            if(superClass!=null && superClass!=Object.class){
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass != null && superClass != Object.class) {
                 allClasses.add(superClass);
                 allClasses.addAll(getAllOurTypes(superClass));
             }
-            for (Class<?> interFace : clazz.getInterfaces()){
+            for (Class<?> interFace : clazz.getInterfaces()) {
                 allClasses.addAll(getAllOurTypes(interFace));
             }
 
@@ -370,16 +385,17 @@ public class ReflectionHelper {
 
     /**
      * return all the methods until (not include) the Object class.
+     *
      * @param klass the class
      * @return list of methods
      */
-   public static List<Method> getAllOurMethods(Class<?> klass){
-       final List<Method> methods = new ArrayList<>();
-       if (klass!=null && klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
-           // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
-           final List<Method> allMethods = new ArrayList<>(Arrays.asList(klass.getDeclaredMethods()));
-           methods.addAll(allMethods);
-           // move to the upper class in the hierarchy in search for more methods
+    public static List<Method> getAllOurMethods(Class<?> klass) {
+        final List<Method> methods = new ArrayList<>();
+        if (klass != null && klass != Object.class) { // need to iterated thought hierarchy in order to retrieve methods from above the current instance
+            // iterate though the list of methods declared in the class represented by klass variable, and add those annotated with the specified annotation
+            final List<Method> allMethods = new ArrayList<>(Arrays.asList(klass.getDeclaredMethods()));
+            methods.addAll(allMethods);
+            // move to the upper class in the hierarchy in search for more methods
            /*if(klass.isInterface()){
                String packageName=klass.getPackage().getName();
                String className=klass.getSimpleName();
@@ -390,10 +406,10 @@ public class ReflectionHelper {
                }
 
            }*/
-           for(Class<?> interFace:klass.getInterfaces())
-               methods.addAll(getAllOurMethods(interFace));
-       }
-       return methods;
-   }
+            for (Class<?> interFace : klass.getInterfaces())
+                methods.addAll(getAllOurMethods(interFace));
+        }
+        return methods;
+    }
 
 }

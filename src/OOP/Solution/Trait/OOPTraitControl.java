@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static OOP.Solution.ReflectionUtils.ReflectionHelper.*;
 
@@ -84,18 +85,21 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
+        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
+
+
         List<Method> allMethods = getAllOurMethods(traitCollector);
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
-        List<Method> matches = implemented.stream().filter(M -> M.getName().equals(methodName)).collect(Collectors.toList());
-        Map<Method, Class<?>> classMap = mapMethodToClass(traitCollector.getInterfaces());
-        List<Method> matchesinTraitCollector = Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList());
+        List<Method> matches = filterByArguments(filterByMethodName(methodName,implemented),args);
+
         Method toInvoke = null;
         try {
-            toInvoke = getBestMatch(true, matchesinTraitCollector, classMap, args);
+            toInvoke = getBestMatch( matches, classMap, args);
             OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
             toInvoke = matches.stream().filter(m -> classMap.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
 
         } catch (OOPCoincidentalAmbiguity oopCoincidentalAmbiguity) {
+
         }
 
         return null;
