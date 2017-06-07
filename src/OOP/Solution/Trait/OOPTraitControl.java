@@ -38,7 +38,7 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true,traitCollector, OOPTraitBehaviour.class);
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true, traitCollector, OOPTraitBehaviour.class);
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         List<Method> allMethods = getAllOurMethods(traitCollector);
@@ -107,9 +107,7 @@ public class OOPTraitControl {
 
         List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
         Method randMethod = candidates.get(0);
-        if (!candidates.stream().allMatch(M -> {
-            return (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod));
-        }))
+        if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod))))
             throw new OOPTraitConflict(randMethod);
 
         return invokeTraitMethod(matches, randMethod, args);
@@ -117,17 +115,23 @@ public class OOPTraitControl {
     }
 
     private Object invokeTraitMethod(List<Method> matches, Method randMethod, Object[] args) {
+
+        Method toInvoke;
         try {
-            Method toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
-            OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
-            toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
-            Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
-            Object obj = interfaceToObjectMapper.get(InvokerClass);
-            return invokeMethod(obj, toInvoke, args);
+            toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
         } catch (NoSuchMethodException e) {
+            //is it possible?
+            return null;
         }
 
-        return null;
+        OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
+        if (annotation != null) { //there is a resolve annotation
+            toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
+        }
+        Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
+        Object obj = interfaceToObjectMapper.get(InvokerClass);
+        return invokeMethod(obj, toInvoke, args);
+
     }
 
     //TODO: add more of your code :
