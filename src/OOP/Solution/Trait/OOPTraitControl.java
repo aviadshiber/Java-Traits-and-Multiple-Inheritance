@@ -36,6 +36,7 @@ public class OOPTraitControl {
         Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true, traitCollector, OOPTraitBehaviour.class);
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
+        TraitClassMapper(methodToClassMapper);
         List<Method> allMethods = getAllOurMethods(traitCollector);
 
 

@@ -24,37 +24,40 @@ public class ReflectionHelper {
     private static final String PACKAGE_DELIMITER = ".";
     public static final String TRAIT_NAME_CONVENTION = "T";
 
+    public static void TraitClassMapper(Map<Method, Class<?>> oldMapper) {
+        for(Method m : new HashSet<>(oldMapper.keySet())) {
+            Class<?> superInterfaceClass = oldMapper.get(m);
+            Class<?> implClass = getClassByConvention(superInterfaceClass);
+            if (implClass != null)
 
+                //if there is such a implementing class
+                try {
+                    final Method sameMethod = implClass.getMethod(m.getName(), m.getParameterTypes());
+                    if (isAnnotatedBy(sameMethod, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)) {
+                        if (oldMapper.containsKey(m))
+                            oldMapper.remove(m);
+                        oldMapper.put(sameMethod, superInterfaceClass);
+                    }
+                } catch (NoSuchMethodException e) {
+
+                }
+        }
+    }
     public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
         Map<Method, Class<?>> classMap = new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
         for (Class<?> superInterfaceClass : superClasses) {
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superInterfaceClass.getMethods()));
             //for later use we need to map each method to it's class
-            superClassMethods.forEach(m -> {
-                if(isAnnotatedBy(m, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL))
-                         classMap.put(m, superInterfaceClass);
-                Class<?> implClass= getClassByConvention(superInterfaceClass);
-                if(implClass!=null) { //if there is such a implementing class
-                    try {
-                        final Method sameMethod = implClass.getMethod(m.getName(),m.getParameterTypes());
-                        if(isAnnotatedBy(sameMethod, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)){
-                            if(classMap.containsKey(m))
-                                classMap.remove(m);
-                            classMap.put(sameMethod,superInterfaceClass);
-                        }
-                    } catch (NoSuchMethodException e) {
-
-                    }
-             }
-            });
+            superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
+            }
             //adding methods of imp classes
              /*Class<?> implClass= getClassByConvention(superInterfaceClass);
              if(implClass!=null) { //if there is such a implementing class
                  final List<Method> superClassMethodsOfImpClass = new ArrayList<>(Arrays.asList(implClass.getMethods()));
                  superClassMethodsOfImpClass.forEach(m -> {classMap.put(m, implClass);});
              }*/
-        }
+
 
         return classMap;
     }
