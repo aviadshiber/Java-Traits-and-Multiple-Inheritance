@@ -31,14 +31,29 @@ public class ReflectionHelper {
         for (Class<?> superInterfaceClass : superClasses) {
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superInterfaceClass.getMethods()));
             //for later use we need to map each method to it's class
-            superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
+            superClassMethods.forEach(m -> {
+                if(isAnnotatedBy(m, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL))
+                         classMap.put(m, superInterfaceClass);
+                Class<?> implClass= getClassByConvention(superInterfaceClass);
+                if(implClass!=null) { //if there is such a implementing class
+                    try {
+                        final Method sameMethod = implClass.getMethod(m.getName(),m.getParameterTypes());
+                        if(isAnnotatedBy(sameMethod, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)){
+                            if(classMap.containsKey(m))
+                                classMap.remove(m);
+                            classMap.put(sameMethod,superInterfaceClass);
+                        }
+                    } catch (NoSuchMethodException e) {
+
+                    }
+             }
+            });
             //adding methods of imp classes
              /*Class<?> implClass= getClassByConvention(superInterfaceClass);
              if(implClass!=null) { //if there is such a implementing class
                  final List<Method> superClassMethodsOfImpClass = new ArrayList<>(Arrays.asList(implClass.getMethods()));
                  superClassMethodsOfImpClass.forEach(m -> {classMap.put(m, implClass);});
              }*/
-
         }
 
         return classMap;

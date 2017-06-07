@@ -96,9 +96,9 @@ public class OOPTraitControl {
             throws OOPTraitException {
 
 
-        List<Method> allMethods = getAllOurMethods(traitCollector);
-       // List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
-        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL) || isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_ABS)).collect(Collectors.toList());
+        //List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
         List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
         Method randMethod = candidates.get(0);
@@ -134,6 +134,7 @@ public class OOPTraitControl {
             System.out.println(toInvoke);
         }else{
             toInvoke=randMethod;
+            System.out.println(toInvoke);
         }
         return invokeTraitMethod(toInvoke,args);
 

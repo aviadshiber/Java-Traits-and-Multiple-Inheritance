@@ -16,8 +16,6 @@ public class Example {
             obj = (TraitCollector) generator.generateTraitClassObject(TraitCollector.class);
             obj.add(3);
             obj.inc();
-            System.out.println(obj);
-            System.out.println(obj.getValue());
             Assert.assertEquals(4, obj.getValue());
             obj.add(6);
             Assert.assertEquals(10, obj.getValue());
