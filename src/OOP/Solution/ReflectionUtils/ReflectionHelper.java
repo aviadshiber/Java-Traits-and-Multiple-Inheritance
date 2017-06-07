@@ -18,8 +18,8 @@ import java.util.stream.Stream;
  */
 public class ReflectionHelper {
 
-    private static final String CLASS_NAME_CONVENTION = "C";
-    private static final String INTERFACE_NAME_CONVENTION = "I";
+    public static final String CLASS_NAME_CONVENTION = "C";
+    public static final String INTERFACE_NAME_CONVENTION = "I";
     private static final String PACKAGE_DELIMITER = ".";
     public static final String TRAIT_NAME_CONVENTION = "T";
 
@@ -27,12 +27,32 @@ public class ReflectionHelper {
     public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
         Map<Method, Class<?>> classMap = new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
-        for (Class<?> superClass : superClasses) {
-            final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superClass.getMethods()));
+        for (Class<?> superInterfaceClass : superClasses) {
+            final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superInterfaceClass.getMethods()));
             //for later use we need to map each method to it's class
-            superClassMethods.forEach(m -> classMap.put(m, superClass));
+            superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
+            //adding methods of imp classes
+             Class<?> implClass= getClassByConvention(superInterfaceClass);
+             if(implClass!=null) { //if there is such a implementing class
+                 final List<Method> superClassMethodsOfImpClass = new ArrayList<>(Arrays.asList(implClass.getMethods()));
+                 superClassMethodsOfImpClass.forEach(m -> {if(!classMap.containsKey(m))classMap.put(m, implClass);});
+             }
+
         }
+
         return classMap;
+    }
+
+    private static Class<?> getClassByConvention(Class<?> clazz) {
+        String packageName = clazz.getPackage().getName();
+        String className = clazz.getSimpleName();
+        if (clazz.isInterface() && (className.startsWith(TRAIT_NAME_CONVENTION) || className.startsWith(INTERFACE_NAME_CONVENTION))) {
+            //extracting the interface number
+            String interfaceNumber = className.substring(1);
+            Class<?> klass = getClassByConvention(packageName + PACKAGE_DELIMITER, interfaceNumber);
+            return klass;
+        }
+        return null;
     }
 
     /**
@@ -64,13 +84,10 @@ public class ReflectionHelper {
      */
     public static Object getInstanceByConvention(boolean isTrait,Class<?> clazz) {
         Object obj = null;
-        String packageName = clazz.getPackage().getName();
         String className = clazz.getSimpleName();
         String nameConvention=isTrait? TRAIT_NAME_CONVENTION :INTERFACE_NAME_CONVENTION;
         if (clazz.isInterface() && className.startsWith(nameConvention)) {
-            //extracting the interface number
-            String interfaceNumber = className.substring(1);
-            Class<?> klass = ReflectionHelper.getClassByConvention(packageName + PACKAGE_DELIMITER, interfaceNumber);
+            Class<?> klass = getClassByConvention(clazz);
             try {
                 if (klass != null)
                     obj = klass.newInstance();
@@ -288,7 +305,11 @@ public class ReflectionHelper {
         Collection<Class<?>> allClasses = methodToClassMapper.values();
         List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
         for(Class<?> clazz : annotatedClasses){
-            interfaceToObjectMapper.put(clazz, getInstanceByConvention(isTrait,clazz));
+            Object objectInstance=getInstanceByConvention(isTrait,clazz);
+            //map interface to object
+            interfaceToObjectMapper.put(clazz,objectInstance );
+            //map class to object
+            interfaceToObjectMapper.put(objectInstance.getClass(),objectInstance );
         }
         return new Pair<>(interfaceToObjectMapper,methodToClassMapper);
     }

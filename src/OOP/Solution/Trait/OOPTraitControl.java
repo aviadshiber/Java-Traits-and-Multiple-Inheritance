@@ -48,7 +48,7 @@ public class OOPTraitControl {
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
         List<Class<?>> notAnnotatedClass = allMethods.stream().map(methodToClassMapper::get).filter(C ->
-                C != null && !C.isAnnotationPresent(OOPTraitBehaviour.class)
+                C != null && !C.getSimpleName().startsWith(CLASS_NAME_CONVENTION) && !C.isAnnotationPresent(OOPTraitBehaviour.class)
         ).collect(Collectors.toList());
         if (notAnnotatedClass.size() > 0) {
             throw new OOPBadClass(notAnnotatedClass.get(0));
@@ -101,7 +101,8 @@ public class OOPTraitControl {
             throws OOPTraitException {
 
 
-        List<Method> allMethods = getAllOurMethods(traitCollector);
+        //List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> allMethods = methodToClassMapper.keySet().stream().collect(Collectors.toList());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
 
@@ -127,6 +128,8 @@ public class OOPTraitControl {
         OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
         if (annotation != null) { //there is a resolve annotation
             toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
+        }else{
+            toInvoke=randMethod;
         }
         Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
         Object obj = interfaceToObjectMapper.get(InvokerClass);

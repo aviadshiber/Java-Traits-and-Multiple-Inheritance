@@ -17,6 +17,8 @@ public class Example {
             obj.add(3);
             obj.inc();
             Assert.assertEquals(4, obj.getValue());
+            obj.add(6);
+            Assert.assertEquals(10, obj.getValue());
 
         } catch (OOPTraitException e) {
             e.printStackTrace();
