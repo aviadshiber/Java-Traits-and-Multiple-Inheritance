@@ -4,8 +4,10 @@ import OOP.Provided.Trait.OOPBadClass;
 import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Provided.Trait.OOPTraitMissingImpl;
+import OOP.Solution.Logger;
 import OOP.Tests.Trait.Example.TraitCollector;
 import javafx.util.Pair;
+
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -76,17 +78,24 @@ public class OOPTraitControl {
 
     private void validateResolvedConflicts(List<Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         if (conflicts.size() > 1) {
+            Logger.log("Conflict was found:"+conflicts);
             Method conflictedMethod = conflicts.get(0);
             try {
                 conflictedMethod = traitCollector.getMethod(conflictedMethod.getName(), conflictedMethod.getParameterTypes());
+                Logger.log("the conflicted method in trait collector is:"+conflictedMethod);
                 if (conflictedMethod.isAnnotationPresent(OOPTraitConflictResolver.class)) {
+                    Logger.log("OOPTraitConflictResolver annotation was present");
                     OOPTraitConflictResolver annotation = conflictedMethod.getAnnotation(OOPTraitConflictResolver.class);
-                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve())))
+                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve()))) {
+                        Logger.log("no resolve was found");
                         throw new OOPTraitConflict(conflictedMethod);
+                    }
                 } else {
+                    Logger.log("OOPTraitConflictResolver annotation not was present");
                     throw new OOPTraitConflict(conflictedMethod);
                 }
             } catch (NoSuchMethodException ignored) {
+                Logger.log("could not find method "+conflictedMethod);
             }
         }
     }
@@ -94,23 +103,27 @@ public class OOPTraitControl {
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
-
+        Logger.log("trying to invoke "+methodName+"with args:"+ Arrays.toString(args));
 
         //List<Method> allMethods = getAllOurMethods(traitCollector);
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
+        Logger.log("matches:"+matches);
         List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
+        Logger.log("candidates:"+candidates);
         Method randMethod = candidates.get(0);
-        if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod))))
+        if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod)))) {
+            Logger.log("more than one candidate was found->Conflict.. throwing exception");
             throw new OOPTraitConflict(randMethod);
+        }
         if(candidates.size() == 1){// no conflicts so just invoke
             Method toInvoke = candidates.get(0);
-            System.out.println("toInvoke only one candidate"+toInvoke);
+            Logger.log("no conflicts, only one candidate, trying to invoke:"+toInvoke);
             return invokeTraitMethod(toInvoke,args);
 
         }
-        //there are conflicts, so search for resolve
+        Logger.log("there are conflicts, so search for a resolve");
         return invokeInTraitMethodConflict(matches, randMethod, args);
 
     }
@@ -122,19 +135,23 @@ public class OOPTraitControl {
             toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
         } catch (NoSuchMethodException e) {
             //is it possible?
-            System.out.println("should not get here (invokeInTraitMethodConflict)");
+            Logger.log("should not get here , could not get method from trait collector (invokeInTraitMethodConflict)");
             return null;
         }
 
         OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
+        Logger.log("annotation value:"+annotation);
         if (annotation != null) { //there is a resolve annotation
+            Logger.log("annotation was found with resolve value:"+annotation.resolve());
            //toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
             List<Method> resolves= matches.stream().filter(m-> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList());
             toInvoke=resolves.get(0);
-            System.out.println(toInvoke);
+            Logger.log("toInvoke value (after taking the resolve Trait):"+toInvoke);
         }else{
+            Logger.log("the annotation was not found in method"+toInvoke);
             toInvoke=randMethod;
-            System.out.println(toInvoke);
+
+            Logger.log("invoking "+toInvoke+" as default");
         }
         return invokeTraitMethod(toInvoke,args);
 

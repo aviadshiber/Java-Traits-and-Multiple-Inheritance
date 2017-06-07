@@ -2,6 +2,7 @@ package OOP.Tests.Trait.Example;
 
 import OOP.Provided.Trait.OOPTraitClassGenerator;
 import OOP.Provided.Trait.OOPTraitException;
+import OOP.Solution.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,6 +14,7 @@ public class Example {
     @Test
     public void main() {
         try {
+            Logger.isActive=true;
             obj = (TraitCollector) generator.generateTraitClassObject(TraitCollector.class);
             obj.add(3);
             obj.inc();
@@ -23,7 +25,7 @@ public class Example {
         } catch (OOPTraitException e) {
             e.printStackTrace();
         } finally {
-           //generator.removeSourceFile();
+           generator.removeSourceFile();
         }
     }
 }
