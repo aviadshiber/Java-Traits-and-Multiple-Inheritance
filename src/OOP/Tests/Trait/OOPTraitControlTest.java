@@ -1,3 +1,4 @@
+/*
 package OOP.Tests.Trait;
 
 import OOP.Provided.Trait.OOPTraitClassGenerator;
@@ -10,9 +11,11 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+*/
 /**
  * Created by ashiber on 07-Jun-17.
- */
+ *//*
+
 public class OOPTraitControlTest {
 
     private static OOPTraitClassGenerator generator = new OOPTraitClassGenerator();
@@ -40,4 +43,4 @@ public class OOPTraitControlTest {
         generator.removeSourceFile();
     }
 
-}
+}*/

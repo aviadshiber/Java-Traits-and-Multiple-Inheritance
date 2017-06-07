@@ -17,6 +17,8 @@ public class C2 implements T2 {     //like the example from the lecture.. in par
     @Override
     @OOPTraitMethod(modifier = OOPTraitMethodModifier.INTER_IMPL)   //actual implementation - should run!
     public int getValue() throws OOPTraitException {
+        System.out.println("C2::getValue");
         return n;
+
     }
 }

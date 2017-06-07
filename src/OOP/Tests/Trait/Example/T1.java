@@ -18,6 +18,7 @@ public interface T1  {
     @OOPTraitMethod(modifier = INTER_IMPL)
     default void inc() throws OOPTraitException {
         obj.add(1);
+        System.out.println("T1::inc");
     }
 
 }

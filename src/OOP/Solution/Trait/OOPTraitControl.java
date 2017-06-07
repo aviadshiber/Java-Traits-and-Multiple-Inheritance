@@ -106,6 +106,7 @@ public class OOPTraitControl {
             throw new OOPTraitConflict(randMethod);
         if(candidates.size() == 1){// no conflicts so just invoke
             Method toInvoke = candidates.get(0);
+            System.out.println("toInvoke only one candidate"+toInvoke);
             return invokeTraitMethod(toInvoke,args);
 
         }
@@ -121,6 +122,7 @@ public class OOPTraitControl {
             toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
         } catch (NoSuchMethodException e) {
             //is it possible?
+            System.out.println("should not get here (invokeInTraitMethodConflict)");
             return null;
         }
 

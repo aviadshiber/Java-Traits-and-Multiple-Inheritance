@@ -19,5 +19,6 @@ public interface T2  {
     @OOPTraitMethod(modifier = INTER_IMPL)
     default void add(Integer v) throws OOPTraitException {
             obj.setValue(obj.getValue() + v);
+        System.out.println("T2::add");
     }
 }
