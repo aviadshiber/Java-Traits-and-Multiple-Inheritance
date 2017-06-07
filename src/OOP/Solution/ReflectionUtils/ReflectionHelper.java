@@ -1,6 +1,7 @@
 package OOP.Solution.ReflectionUtils;
 
 import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
+import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Solution.Trait.OOPTraitMethod;
 import OOP.Solution.Trait.OOPTraitMethodModifier;
 import javafx.util.Pair;
@@ -124,7 +125,31 @@ public class ReflectionHelper {
         }
         return clazz;
     }
+    public static int findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict{
+        Method closestMethod;
+        Integer closestDistance = calculateMethodPath(allMethods.get(0),args);
+        for(Method M : allMethods){
+            if(calculateMethodPath(M,args)<closestDistance){
+                closestDistance = calculateMethodPath(M,args);
+                closestMethod = M;
+            }
+        }
 
+
+    }
+    public static Integer distanceFromObject(Class<?> type){
+
+    }
+    public static boolean methodAmbiguity(Method one,Method two){
+        Class<?>[] oneTypes = one.getParameterTypes();
+        Class<?>[] twoTypes = two.getParameterTypes();
+        if(oneTypes.length != twoTypes.length)
+            return false;
+        boolean oneIsLower = false, twoIsLower = false;
+        for(int i = 0; i < oneTypes.length; i++){
+
+        }
+    }
     /**
      * the method calculates the total distance of each argument from the method actual types.
      * ******the method assumes that the method have co-variance conformance with the args at least.****
