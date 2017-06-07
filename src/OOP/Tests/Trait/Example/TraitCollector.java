@@ -13,6 +13,10 @@ public interface TraitCollector extends T1, T2 {
     void add(Integer v) throws OOPTraitException;
 
     @OOPTraitMethod(modifier = OOPTraitMethodModifier.INTER_CONFLICT)
+    @OOPTraitConflictResolver(resolve = T2.class)
+    void setValue(Integer v) throws OOPTraitException;
+
+    @OOPTraitMethod(modifier = OOPTraitMethodModifier.INTER_CONFLICT)
     @OOPTraitConflictResolver(resolve = T1.class)
     void conf() throws OOPTraitException;   //resolves conflict for method "conf" in the layout
 }

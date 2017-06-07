@@ -11,6 +11,8 @@ import static OOP.Tests.Trait.Example.Example.obj;
 public interface T1  {
 
     @OOPTraitMethod     //no implementation here
+    void setValue(Integer v) throws OOPTraitException;
+    @OOPTraitMethod     //no implementation here
     void add(Integer v) throws OOPTraitException;
 
     @OOPTraitMethod(modifier = INTER_IMPL)

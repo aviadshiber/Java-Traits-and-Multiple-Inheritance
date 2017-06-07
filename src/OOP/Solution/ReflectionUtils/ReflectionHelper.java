@@ -32,11 +32,11 @@ public class ReflectionHelper {
             //for later use we need to map each method to it's class
             superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
             //adding methods of imp classes
-             Class<?> implClass= getClassByConvention(superInterfaceClass);
+             /*Class<?> implClass= getClassByConvention(superInterfaceClass);
              if(implClass!=null) { //if there is such a implementing class
                  final List<Method> superClassMethodsOfImpClass = new ArrayList<>(Arrays.asList(implClass.getMethods()));
-                 superClassMethodsOfImpClass.forEach(m -> {if(!classMap.containsKey(m))classMap.put(m, implClass);});
-             }
+                 superClassMethodsOfImpClass.forEach(m -> {classMap.put(m, implClass);});
+             }*/
 
         }
 
@@ -292,14 +292,14 @@ public class ReflectionHelper {
     public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait,Class<?> interfaceClass, Class<? extends Annotation> annotation) {
         //fills the method to class map
         Map<Method, Class<?>> methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
-        if(isTrait){
+        /*if(isTrait){
             Map<Method, Class<?>> traitMethodToClassMapper = new Hashtable<>();
             List<Method> implemented = methodToClassMapper.keySet().stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
             for(Method m : implemented){
                 traitMethodToClassMapper.put(m,methodToClassMapper.get(m));
             }
             methodToClassMapper = traitMethodToClassMapper;
-        }
+        }*/
         Map<Class<?>, Object> interfaceToObjectMapper = new Hashtable<>();
         //fills the interface to object map
         Collection<Class<?>> allClasses = methodToClassMapper.values();

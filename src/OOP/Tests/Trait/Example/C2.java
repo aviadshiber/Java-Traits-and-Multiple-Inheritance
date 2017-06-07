@@ -9,8 +9,9 @@ public class C2 implements T2 {     //like the example from the lecture.. in par
 
     @Override
     @OOPTraitMethod(modifier = OOPTraitMethodModifier.INTER_IMPL)
-    public void setValue(Integer v) throws OOPTraitException {
+    public void setValue(Integer v) throws OOPTraitException{
         n = v;
+        System.out.println(this.getClass()+" with value:"+n);
     }
 
     @Override

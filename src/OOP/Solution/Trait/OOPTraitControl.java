@@ -1,21 +1,16 @@
 package OOP.Solution.Trait;
 
-import OOP.Provided.Multiple.OOPCoincidentalAmbiguity;
 import OOP.Provided.Trait.OOPBadClass;
 import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Provided.Trait.OOPTraitMissingImpl;
-import OOP.Solution.Multiple.OOPMultipleInterface;
 import OOP.Tests.Trait.Example.TraitCollector;
 import javafx.util.Pair;
 
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static OOP.Solution.ReflectionUtils.ReflectionHelper.*;
 
@@ -101,21 +96,25 @@ public class OOPTraitControl {
             throws OOPTraitException {
 
 
-        //List<Method> allMethods = getAllOurMethods(traitCollector);
-        List<Method> allMethods = methodToClassMapper.keySet().stream().collect(Collectors.toList());
-        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        List<Method> allMethods = getAllOurMethods(traitCollector);
+       // List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL) || isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_ABS)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
-
         List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
         Method randMethod = candidates.get(0);
         if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod))))
             throw new OOPTraitConflict(randMethod);
+        if(candidates.size() == 1){// no conflicts so just invoke
+            Method toInvoke = candidates.get(0);
+            return invokeTraitMethod(toInvoke,args);
 
-        return invokeTraitMethod(matches, randMethod, args);
+        }
+        //there are conflicts, so search for resolve
+        return invokeInTraitMethodConflict(matches, randMethod, args);
 
     }
 
-    private Object invokeTraitMethod(List<Method> matches, Method randMethod, Object[] args) {
+    private Object invokeInTraitMethodConflict(List<Method> matches, Method randMethod, Object[] args) {
 
         Method toInvoke;
         try {
@@ -127,14 +126,21 @@ public class OOPTraitControl {
 
         OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
         if (annotation != null) { //there is a resolve annotation
-            toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
+           //toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
+            List<Method> resolves= matches.stream().filter(m-> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList());
+            toInvoke=resolves.get(0);
+            System.out.println(toInvoke);
         }else{
             toInvoke=randMethod;
         }
+        return invokeTraitMethod(toInvoke,args);
+
+    }
+
+    private Object invokeTraitMethod(Method toInvoke, Object[] args) {
         Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
         Object obj = interfaceToObjectMapper.get(InvokerClass);
-        return invokeMethod(obj, toInvoke, args);
-
+       return  invokeMethod(obj, toInvoke, args);
     }
 
     //TODO: add more of your code :
