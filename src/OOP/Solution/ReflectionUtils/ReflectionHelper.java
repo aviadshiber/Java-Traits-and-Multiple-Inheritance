@@ -143,19 +143,20 @@ public class ReflectionHelper {
         }
         return clazz;
     }
-    public static int findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict{
-        Method closestMethod;
-        if(methodAmbiguity(allMethods,args)!=null)
-            throw new OOPTraitConflict(methodAmbiguity(allMethods,args));
-        Integer closestDistance = calculateMethodPath(allMethods.get(0),args);
-        for(Method M : allMethods){
-            if(calculateMethodPath(M,args)<closestDistance){
-                closestDistance = calculateMethodPath(M,args);
+    //Work in progress
+    public static Method findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict {
+        Method closestMethod = null;
+        if (methodAmbiguity(allMethods, args) != null)
+            throw new OOPTraitConflict(methodAmbiguity(allMethods, args));
+        Integer closestDistance = calculateMethodPath(allMethods.get(0), args);
+        for (Method M : allMethods) {
+            if (calculateMethodPath(M, args) < closestDistance) {
+                closestDistance = calculateMethodPath(M, args);
                 closestMethod = M;
             }
         }
 
-
+    return closestMethod;
     }
     public static int calculateIthArgDistance(Method M,int i,Object... args){
         if (args == null)
