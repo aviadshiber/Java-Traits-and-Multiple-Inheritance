@@ -54,18 +54,6 @@ public class OOPMultipleControl {
     }
 
 
-
-   /* private void fillMaps(Class<? extends  Annotation> annotation) {
-        //fills the method to class map
-        methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
-
-        interfaceToObjectMapper = new Hashtable<>();
-        //fills the interface to object map
-        Collection<Class<?>> allClasses = methodToClassMapper.values();
-        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
-        annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
-    }*/
-
     private void validateForCommonParent() throws OOPInherentAmbiguity {
         Set<Class<?>> interfaceSet = new HashSet<>();
         validateForCommonParent(interfaceClass, interfaceSet

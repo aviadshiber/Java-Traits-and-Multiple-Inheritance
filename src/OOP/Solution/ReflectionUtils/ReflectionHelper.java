@@ -25,7 +25,7 @@ public class ReflectionHelper {
     public static final String TRAIT_NAME_CONVENTION = "T";
 
     public static void TraitClassMapper(Map<Method, Class<?>> oldMapper) {
-        for(Method m : new HashSet<>(oldMapper.keySet())) {
+        for (Method m : new HashSet<>(oldMapper.keySet())) {
             Class<?> superInterfaceClass = oldMapper.get(m);
             Class<?> implClass = getClassByConvention(superInterfaceClass);
             if (implClass != null) {
@@ -44,6 +44,7 @@ public class ReflectionHelper {
             }
         }
     }
+
     public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
         Map<Method, Class<?>> classMap = new Hashtable<>();
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
@@ -51,8 +52,8 @@ public class ReflectionHelper {
             final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superInterfaceClass.getMethods()));
             //for later use we need to map each method to it's class
             superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
-            }
-            //adding methods of imp classes
+        }
+        //adding methods of imp classes
              /*Class<?> implClass= getClassByConvention(superInterfaceClass);
              if(implClass!=null) { //if there is such a implementing class
                  final List<Method> superClassMethodsOfImpClass = new ArrayList<>(Arrays.asList(implClass.getMethods()));
@@ -84,12 +85,12 @@ public class ReflectionHelper {
      * @return the return value of the invoke, or null if IllegalAccessException or InvocationTargetException
      */
     public static Object invokeMethod(Object obj, Method method, Object... args) {
-       Object returnValue=null;
+        Object returnValue = null;
         try {
             if (args != null)
-                returnValue= method.invoke(obj, args);
+                returnValue = method.invoke(obj, args);
             else
-                returnValue= method.invoke(obj);
+                returnValue = method.invoke(obj);
         } catch (IllegalAccessException | InvocationTargetException e) {
             // e.printStackTrace();
         }
@@ -102,10 +103,10 @@ public class ReflectionHelper {
      * @param clazz the class
      * @return the instance of that class
      */
-    public static Object getInstanceByConvention(boolean isTrait,Class<?> clazz) {
+    public static Object getInstanceByConvention(boolean isTrait, Class<?> clazz) {
         Object obj = null;
         String className = clazz.getSimpleName();
-        String nameConvention=isTrait? TRAIT_NAME_CONVENTION :INTERFACE_NAME_CONVENTION;
+        String nameConvention = isTrait ? TRAIT_NAME_CONVENTION : INTERFACE_NAME_CONVENTION;
         if (clazz.isInterface() && className.startsWith(nameConvention)) {
             Class<?> klass = getClassByConvention(clazz);
             try {
@@ -144,6 +145,7 @@ public class ReflectionHelper {
         }
         return clazz;
     }
+
     //Work in progress
     public static Method findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict {
         Method closestMethod = null;
@@ -157,65 +159,68 @@ public class ReflectionHelper {
             }
         }
 
-    return closestMethod;
+        return closestMethod;
     }
-    public static int calculateIthArgDistance(Method M,int i,Object... args){
+
+    public static int calculateIthArgDistance(Method M, int i, Object... args) {
         if (args == null)
             return 0;
         int totalDistance = 0;
         Class<?>[] methodTypes = M.getParameterTypes();
-            Object argument = args[i];
-            Class<?> type = methodTypes[i];
-            Class<?> argumentClass = argument.getClass();
-            //if argument class is type than distance is 0 or
-            // the argument is not instance of type we skip to next argument
-            if (!type.equals(argumentClass) && type.isInstance(argument)) {
-                boolean wasTypeBeenFound = false;
-                while (!wasTypeBeenFound) {
-                    List<Class<?>> foundedInterfaces = getInterfacesAssignableFrom(argumentClass, type);
-                    while (isThereInterfacesToScan(foundedInterfaces)) {
+        Object argument = args[i];
+        Class<?> type = methodTypes[i];
+        Class<?> argumentClass = argument.getClass();
+        //if argument class is type than distance is 0 or
+        // the argument is not instance of type we skip to next argument
+        if (!type.equals(argumentClass) && type.isInstance(argument)) {
+            boolean wasTypeBeenFound = false;
+            while (!wasTypeBeenFound) {
+                List<Class<?>> foundedInterfaces = getInterfacesAssignableFrom(argumentClass, type);
+                while (isThereInterfacesToScan(foundedInterfaces)) {
 
-                        //only one can be found
-                        Class<?> foundedInterface = foundedInterfaces.get(0);
-                        if (foundedInterface.equals(type)) {
-                            wasTypeBeenFound = true;
-                        }
-                        totalDistance++;
-                        foundedInterfaces = getInterfacesAssignableFrom(foundedInterface, type);
-                    }
-                    //if not interfaces were found and we still have not found it, search in in class hierarchy
-                    if (!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound) {
-                        argumentClass = argumentClass.getSuperclass();
-                        totalDistance++;
-                    }
-                    if (argumentClass.equals(type))
+                    //only one can be found
+                    Class<?> foundedInterface = foundedInterfaces.get(0);
+                    if (foundedInterface.equals(type)) {
                         wasTypeBeenFound = true;
+                    }
+                    totalDistance++;
+                    foundedInterfaces = getInterfacesAssignableFrom(foundedInterface, type);
                 }
-
+                //if not interfaces were found and we still have not found it, search in in class hierarchy
+                if (!isThereInterfacesToScan(foundedInterfaces) && !wasTypeBeenFound) {
+                    argumentClass = argumentClass.getSuperclass();
+                    totalDistance++;
+                }
+                if (argumentClass.equals(type))
+                    wasTypeBeenFound = true;
             }
+
+        }
         return totalDistance;
     }
+
+
     //returns true if there are atleast two methods that cause ambiguity, and false otherwise
-    public static Method methodAmbiguity(List<Method> allMethods, Object... args){
+    public static Method methodAmbiguity(List<Method> allMethods, Object... args) {
         if (args == null)
             return null;
         boolean possibleNewMin = false;
         boolean forSureNotNewMin = false;
         int[] minDist = new int[args.length];
-        for(int i=0;i<minDist.length;i++)
+        for (int i = 0; i < minDist.length; i++)
             minDist[i] = -1;
-        for(Method M : allMethods) {
-            for(int i=0;i<args.length;i++){
-                int dist = calculateIthArgDistance(M,i,args);
-                if(dist < minDist[i]||minDist[i]==-1) {
+        for (Method M : allMethods) {
+            for (int i = 0; i < args.length; i++) {
+                int dist = calculateIthArgDistance(M, i, args);
+                if (dist < minDist[i] || minDist[i] == -1) {
                     possibleNewMin = true;
                     minDist[i] = dist;
                 }
-                if(possibleNewMin&&dist > minDist[i]&&minDist[i]!=-1)
+                if (possibleNewMin && dist > minDist[i] && minDist[i] != -1)
                     return M;
-                if(dist > minDist[i]&&minDist[i]!=-1)
+                if (dist > minDist[i] && minDist[i] != -1)
                     forSureNotNewMin = true;
-                if(forSureNotNewMin&&dist<minDist[i])
+                if (forSureNotNewMin && dist < minDist[i])
                     return M;
             }
             possibleNewMin = false;
@@ -223,6 +228,7 @@ public class ReflectionHelper {
         }
         return null;
     }
+
     /**
      * the method calculates the total distance of each argument from the method actual types.
      * ******the method assumes that the method have co-variance conformance with the args at least.****
@@ -236,9 +242,10 @@ public class ReflectionHelper {
             return 0;
         int totalDistance = 0;
         for (int i = 0; i < args.length; i++)
-            totalDistance += calculateIthArgDistance(method,i,args);
+            totalDistance += calculateIthArgDistance(method, i, args);
         return totalDistance;
     }
+
     /**
      * gets all the interfaces which argumentClass inherent from type
      *
@@ -328,22 +335,24 @@ public class ReflectionHelper {
 
     /**
      * return the
+     *
      * @param filteredMethods
      * @param classMap
      * @param args
      * @return
      */
-    public static  PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
+    public static PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) {
         PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
         filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
         return queue;
     }
-    private static  Collection<Pair<Class<?>, Method>> getClosestMethodsAsPairs(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
+
+    private static Collection<Pair<Class<?>, Method>> getClosestMethodsAsPairs(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) {
         Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
-        PriorityQueue<MethodDistance> queue=getAllBestMatches(filteredMethods,classMap,args);
+        PriorityQueue<MethodDistance> queue = getAllBestMatches(filteredMethods, classMap, args);
         MethodDistance bestMatch = queue.poll();
         pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
-        if(!queue.isEmpty()){
+        if (!queue.isEmpty()) {
             MethodDistance nextMatch = queue.poll();
             while (nextMatch.distance == bestMatch.distance) {
                 pairs.add(new Pair<>(classMap.get(nextMatch.method), nextMatch.method));
@@ -355,9 +364,9 @@ public class ReflectionHelper {
         return pairs;
     }
 
-    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait,Class<?> interfaceClass, Class<? extends Annotation> annotation) {
+    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait, Class<?> interfaceClass, Class<? extends Annotation> annotation) {
         //fills the method to class map
-        Map<Method, Class<?>> methodToClassMapper =mapMethodToClass(interfaceClass.getInterfaces());
+        Map<Method, Class<?>> methodToClassMapper = mapMethodToClass(interfaceClass.getInterfaces());
         /*if(isTrait){
             Map<Method, Class<?>> traitMethodToClassMapper = new Hashtable<>();
             List<Method> implemented = methodToClassMapper.keySet().stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
@@ -370,14 +379,14 @@ public class ReflectionHelper {
         //fills the interface to object map
         Collection<Class<?>> allClasses = methodToClassMapper.values();
         List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
-        for(Class<?> clazz : annotatedClasses){
-            Object objectInstance=getInstanceByConvention(isTrait,clazz);
+        for (Class<?> clazz : annotatedClasses) {
+            Object objectInstance = getInstanceByConvention(isTrait, clazz);
             //map interface to object
-            interfaceToObjectMapper.put(clazz,objectInstance );
+            interfaceToObjectMapper.put(clazz, objectInstance);
             //map class to object
-            interfaceToObjectMapper.put(objectInstance.getClass(),objectInstance );
+            interfaceToObjectMapper.put(objectInstance.getClass(), objectInstance);
         }
-        return new Pair<>(interfaceToObjectMapper,methodToClassMapper);
+        return new Pair<>(interfaceToObjectMapper, methodToClassMapper);
     }
 
 
@@ -391,22 +400,25 @@ public class ReflectionHelper {
      */
     public static Method getBestMatch(boolean skipExceptionCheck, List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) throws OOPCoincidentalAmbiguity {
 
-        Collection<Pair<Class<?>, Method>> pairs=getClosestMethodsAsPairs(filteredMethods,classMap,args);
+        Collection<Pair<Class<?>, Method>> pairs = getClosestMethodsAsPairs(filteredMethods, classMap, args);
         //if there is more than one match we need to see if there are equals matches, if there are some then there is Coincidental Ambiguity
         if (pairs.size() > 1) {
-                throw new OOPCoincidentalAmbiguity(pairs);
+            throw new OOPCoincidentalAmbiguity(pairs);
         }
         //return the minimal distance- the best match
-        ArrayList<Pair<Class<?>, Method>> arrayPairs=new ArrayList<>(pairs);
-        Method bestMatch=arrayPairs.get(0).getValue();
+        ArrayList<Pair<Class<?>, Method>> arrayPairs = new ArrayList<>(pairs);
+        Method bestMatch = arrayPairs.get(0).getValue();
         return bestMatch;
     }
-    public static List<Method> getClosestMethods(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args){
-        return pairsToMethodList(getClosestMethodsAsPairs(filteredMethods,classMap,args));
+
+    public static List<Method> getClosestMethods(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) {
+        return pairsToMethodList(getClosestMethodsAsPairs(filteredMethods, classMap, args));
     }
-    private static List<Method> pairsToMethodList(Collection<Pair<Class<?>, Method>> pairs){
-        return pairs.stream().map(pair-> pair.getValue()).collect(Collectors.toList());
+
+    private static List<Method> pairsToMethodList(Collection<Pair<Class<?>, Method>> pairs) {
+        return pairs.stream().map(pair -> pair.getValue()).collect(Collectors.toList());
     }
+
     public static boolean isAnnotatedBy(Method m, Class<OOPTraitMethod> oopTraitMethodClass, OOPTraitMethodModifier inter) {
         if (m.isAnnotationPresent(oopTraitMethodClass)) {
             OOPTraitMethod mod = m.getAnnotation(oopTraitMethodClass);
@@ -416,50 +428,67 @@ public class ReflectionHelper {
     }
 
     /**
-     * return a set of the collided methods(methods which have the same name and arguments) from a list
+     * the method return a vector which represent on the ith place the number of upcasting needed
+     * to do from args to method types.
+     * @param method the method to check- must have the same number elements as args
+     * @param args the actual arguments
+     * @return
+     */
+    public static ArrayList<Integer> getUpcastingVector(Method method,Object...args){
+        ArrayList<Integer> vector=new ArrayList<>();
+        if(args==null)
+            return vector;
+        for(int i=0;i<args.length;i++){
+            vector.set(i,calculateIthArgDistance(method,i,args));
+        }
+        return vector;
+    }
+
+    /**
+     * method check if there is ambiguity between the two methods.
+     * the method assumes that the two methods have the same name and same number of arguments.
+     * @param one method one
+     * @param two method two
+     * @param args the actual arguments
+     * @return
+     */
+    public static boolean pairAmbiguity(Method one,Method two,Object... args) {
+        if (args == null)
+            return true;
+        boolean firstMin = false;
+        boolean secondMin = false;
+        ArrayList<Integer> firstArgsDist = getUpcastingVector(one,args);
+        ArrayList<Integer> secondArgsDist = getUpcastingVector(two,args);
+        for (int i = 0; i < args.length; i++) {
+            if(firstArgsDist.get(i)<secondArgsDist.get(i))
+                firstMin=true;
+            if(firstArgsDist.get(i)>secondArgsDist.get(i)&&firstMin)
+                return true;
+            if(firstArgsDist.get(i)>secondArgsDist.get(i))
+                secondMin=true;
+            if(firstArgsDist.get(i)<secondArgsDist.get(i)&&secondMin)
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * return a set of the collided methods from a list
+     * the method assumes that all methods in methodList have the same name & num of arguments
      *
      * @param methodList method list
      * @return a set of the collided methods in a list
      */
     public static Set<Method> getCollidedMethods(List<Method> methodList) {
-        /*
-          the class was made to make a set of unique methods only the (comparing is between their arguments)
-         */
-        class MethodComparator {
-            Method method;
-
-            MethodComparator(Method method) {
-                this.method = method;
-            }
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                MethodComparator that = (MethodComparator) o;
-
-                return method != null ? this.method.getName().equals(that.method.getName()) && ReflectionHelper.methodsHaveSameArguments(method, that.method) : that.method == null;
-            }
-
-            @Override
-            public int hashCode() {
-                return method != null ? method.hashCode() : 0;
-            }
-        }
-
-        //we create special set to compare between methods by their arguments (a sub Set of methodList)
-        Set<MethodComparator> uniqueMethods = new HashSet<>();
-        methodList.forEach(method -> uniqueMethods.add(new MethodComparator(method)));
-        //unwrap it to regular Set
-        Set<Method> regularUniqueMethods = uniqueMethods.stream().map(mc -> mc.method).collect(Collectors.toSet());
-        Set<Method> allMethods = new HashSet<>();
-        //convert methodList to Set
-        allMethods.addAll(methodList);
-
-        //now we can subtract with the regular equal method which is not by arguments but by class
-        allMethods.removeAll(regularUniqueMethods);
-        return allMethods;
+       Set<Method> collided = new HashSet<>();
+       for(Method one:methodList){
+           for(Method two:methodList)
+               if(pairAmbiguity(one,two)) {
+                   collided.add(one);
+                   collided.add(two);
+               }
+       }
+       return collided;
     }
 
     /**

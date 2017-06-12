@@ -8,20 +8,14 @@ import static OOP.Solution.Trait.OOPTraitMethodModifier.INTER_IMPL;
 import static OOP.Tests.Trait.Example.Example.obj;
 
 @OOPTraitBehaviour
-public interface T1  {
+public interface T1 {
 
-    @OOPTraitMethod     //no implementation here
-    void setValue(Integer v) throws OOPTraitException;
     @OOPTraitMethod     //no implementation here
     void add(Integer v) throws OOPTraitException;
-    @OOPTraitMethod(modifier = INTER_IMPL)
-    default void ambuigTest(Object o,String s)throws OOPTraitException {
 
-    }
     @OOPTraitMethod(modifier = INTER_IMPL)
     default void inc() throws OOPTraitException {
         obj.add(1);
-        System.out.println("T1::inc");
     }
 
 }

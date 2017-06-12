@@ -5,7 +5,6 @@ import OOP.Provided.Multiple.OOPMultipleException;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 public class Example {
 
     private OOPMultipleClassGenerator generator = new OOPMultipleClassGenerator();
@@ -13,12 +12,9 @@ public class Example {
     @Test
     public void main() {
         try {
-            I3 obj = (I3) generator.generateMultipleClass(I3.class);
-
-           // Arrays.stream(I2.class.getAnnotations()).forEach(clazz-> System.out.println(clazz));
-
+            I3 obj = (I3)
+                    generator.generateMultipleClass(I3.class);
             Assert.assertEquals("C1 : f", obj.f());
-            //Assert.assertEquals(null, obj.g());
             obj.g();
 
         } catch (OOPMultipleException e) {
