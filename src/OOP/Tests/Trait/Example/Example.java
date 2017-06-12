@@ -1,6 +1,7 @@
 package OOP.Tests.Trait.Example;
 
 import OOP.Provided.Trait.OOPTraitClassGenerator;
+import OOP.Provided.Trait.OOPTraitConflict;
 import OOP.Provided.Trait.OOPTraitException;
 import OOP.Solution.Logger;
 import org.junit.Assert;
@@ -21,8 +22,16 @@ public class Example {
             Assert.assertEquals(4, obj.getValue());
             obj.add(6);
             Assert.assertEquals(10, obj.getValue());
-
-        } catch (OOPTraitException e) {
+           String s = "alo";
+            Object b = new Object();
+            obj.ambuigTest(s,b);
+            obj.ambuigTest(b,s);
+            obj.ambuigTest(s,s);
+        }
+        catch(OOPTraitConflict e){
+            Logger.log("CONFLICT CATCH SUCCESS.\n");
+        }
+            catch (OOPTraitException e) {
             e.printStackTrace();
         } finally {
            generator.removeSourceFile();

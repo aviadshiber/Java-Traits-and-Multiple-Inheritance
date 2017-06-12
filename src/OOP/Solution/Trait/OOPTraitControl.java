@@ -39,8 +39,8 @@ public class OOPTraitControl {
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         TraitClassMapper(methodToClassMapper);
-        List<Method> allMethods = getAllOurMethods(traitCollector);
-
+        //List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
 
         List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
@@ -58,7 +58,7 @@ public class OOPTraitControl {
             }
         }
         for (Method method : allMethods) {
-            List<Method> conflicts = implemented.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod)).collect(Collectors.toList());
+            List<Method> conflicts = implemented.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod) && otherMethod.getName().equals(method.getName())).collect(Collectors.toList());
             validateResolvedConflicts(conflicts, methodToClassMapper);
         }
 
@@ -111,14 +111,16 @@ public class OOPTraitControl {
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
         Logger.log("matches:"+matches);
-        List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
+        if(methodAmbiguity(matches,args)!=null)
+            throw new OOPTraitConflict(methodAmbiguity(matches,args));
+       List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
         Logger.log("candidates:"+candidates);
         Method randMethod = candidates.get(0);
         if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod)))) {
-            Logger.log("more than one candidate was found->Conflict.. throwing exception");
+            Logger.log("more than one candidate was found->Conflict.. throwing exception,SHOULD NOT GET HERE");
             throw new OOPTraitConflict(randMethod);
         }
-        if(candidates.size() == 1){// no conflicts so just invoke
+       if(candidates.size() == 1){// no conflicts so just invoke
             Method toInvoke = candidates.get(0);
             Logger.log("no conflicts, only one candidate, trying to invoke:"+toInvoke);
             return invokeTraitMethod(toInvoke,args);

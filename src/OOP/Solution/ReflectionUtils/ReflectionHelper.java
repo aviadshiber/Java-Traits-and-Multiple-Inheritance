@@ -28,7 +28,7 @@ public class ReflectionHelper {
         for(Method m : new HashSet<>(oldMapper.keySet())) {
             Class<?> superInterfaceClass = oldMapper.get(m);
             Class<?> implClass = getClassByConvention(superInterfaceClass);
-            if (implClass != null)
+            if (implClass != null) {
 
                 //if there is such a implementing class
                 try {
@@ -41,6 +41,7 @@ public class ReflectionHelper {
                 } catch (NoSuchMethodException e) {
 
                 }
+            }
         }
     }
     public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
@@ -204,9 +205,9 @@ public class ReflectionHelper {
         for(int i=0;i<minDist.length;i++)
             minDist[i] = -1;
         for(Method M : allMethods) {
-            for(int i=0;i<minDist.length;i++){
+            for(int i=0;i<args.length;i++){
                 int dist = calculateIthArgDistance(M,i,args);
-                if(dist < minDist[i]) {
+                if(dist < minDist[i]||minDist[i]==-1) {
                     possibleNewMin = true;
                     minDist[i] = dist;
                 }

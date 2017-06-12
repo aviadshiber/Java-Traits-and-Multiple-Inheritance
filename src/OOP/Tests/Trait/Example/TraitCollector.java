@@ -11,7 +11,8 @@ public interface TraitCollector extends T1, T2 {
 
     @OOPTraitMethod(modifier = INTER_MISSING_IMPL)   //resolves two decelerations in T1 and T2 - should not run!
     void add(Integer v) throws OOPTraitException;
-
+    @OOPTraitMethod(modifier = INTER_MISSING_IMPL)   //resolves two decelerations in T1 and T2 - should not run!
+    void ambuigTest(String s, String s2) throws OOPTraitException;
     @OOPTraitMethod(modifier = OOPTraitMethodModifier.INTER_CONFLICT)
     @OOPTraitConflictResolver(resolve = T2.class)
     void setValue(Integer v) throws OOPTraitException;

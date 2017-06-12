@@ -14,7 +14,10 @@ public interface T1  {
     void setValue(Integer v) throws OOPTraitException;
     @OOPTraitMethod     //no implementation here
     void add(Integer v) throws OOPTraitException;
+    @OOPTraitMethod(modifier = INTER_IMPL)
+    default void ambuigTest(Object o,String s)throws OOPTraitException {
 
+    }
     @OOPTraitMethod(modifier = INTER_IMPL)
     default void inc() throws OOPTraitException {
         obj.add(1);
