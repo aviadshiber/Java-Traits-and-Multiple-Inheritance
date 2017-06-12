@@ -143,8 +143,10 @@ public class ReflectionHelper {
         }
         return clazz;
     }
-   /* public static int findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict{
+    public static int findProperMethod(List<Method> allMethods, Object... args) throws OOPTraitConflict{
         Method closestMethod;
+        if(methodAmbiguity(allMethods,args)!=null)
+            throw new OOPTraitConflict(methodAmbiguity(allMethods,args));
         Integer closestDistance = calculateMethodPath(allMethods.get(0),args);
         for(Method M : allMethods){
             if(calculateMethodPath(M,args)<closestDistance){
@@ -155,34 +157,11 @@ public class ReflectionHelper {
 
 
     }
-    public static Integer distanceFromObject(Class<?> type){
-
-    }*/
-   /* public static boolean methodAmbiguity(Method one,Method two){
-        Class<?>[] oneTypes = one.getParameterTypes();
-        Class<?>[] twoTypes = two.getParameterTypes();
-        if(oneTypes.length != twoTypes.length)
-            return false;
-        boolean oneIsLower = false, twoIsLower = false;
-        for(int i = 0; i < oneTypes.length; i++){
-
-        }
-    }*/
-    /**
-     * the method calculates the total distance of each argument from the method actual types.
-     * ******the method assumes that the method have co-variance conformance with the args at least.****
-     *
-     * @param method the method to calculate the distance from args
-     * @param args   the arguments
-     * @return the distance
-     */
-    public static int calculateMethodPath(Method method, Object... args) {
+    public static int calculateIthArgDistance(Method M,int i,Object... args){
         if (args == null)
             return 0;
         int totalDistance = 0;
-        Class<?>[] methodTypes = method.getParameterTypes();
-
-        for (int i = 0; i < args.length; i++) {
+        Class<?>[] methodTypes = M.getParameterTypes();
             Object argument = args[i];
             Class<?> type = methodTypes[i];
             Class<?> argumentClass = argument.getClass();
@@ -212,10 +191,52 @@ public class ReflectionHelper {
                 }
 
             }
-        }
         return totalDistance;
     }
-
+    //returns true if there are atleast two methods that cause ambiguity, and false otherwise
+    public static Method methodAmbiguity(List<Method> allMethods, Object... args){
+        if (args == null)
+            return null;
+        boolean possibleNewMin = false;
+        boolean forSureNotNewMin = false;
+        int[] minDist = new int[args.length];
+        for(int i=0;i<minDist.length;i++)
+            minDist[i] = -1;
+        for(Method M : allMethods) {
+            for(int i=0;i<minDist.length;i++){
+                int dist = calculateIthArgDistance(M,i,args);
+                if(dist < minDist[i]) {
+                    possibleNewMin = true;
+                    minDist[i] = dist;
+                }
+                if(possibleNewMin&&dist > minDist[i]&&minDist[i]!=-1)
+                    return M;
+                if(dist > minDist[i]&&minDist[i]!=-1)
+                    forSureNotNewMin = true;
+                if(forSureNotNewMin&&dist<minDist[i])
+                    return M;
+            }
+            possibleNewMin = false;
+            forSureNotNewMin = false;
+        }
+        return null;
+    }
+    /**
+     * the method calculates the total distance of each argument from the method actual types.
+     * ******the method assumes that the method have co-variance conformance with the args at least.****
+     *
+     * @param method the method to calculate the distance from args
+     * @param args   the arguments
+     * @return the distance
+     */
+    public static int calculateMethodPath(Method method, Object... args) {
+        if (args == null)
+            return 0;
+        int totalDistance = 0;
+        for (int i = 0; i < args.length; i++)
+            totalDistance += calculateIthArgDistance(method,i,args);
+        return totalDistance;
+    }
     /**
      * gets all the interfaces which argumentClass inherent from type
      *
