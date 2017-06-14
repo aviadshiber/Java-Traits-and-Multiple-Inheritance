@@ -38,7 +38,7 @@ public class OOPMultipleControl {
         validateTags(OOPMultipleInterface.class, OOPMultipleMethod.class);
         validateForCommonParent();
         //we need to map each interface to it's instance
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(false,interfaceClass,OOPMultipleInterface.class);
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(false,interfaceClass,OOPMultipleMethod.class,OOPMultipleInterface.class);
         interfaceToObjectMapper=pair.getKey();
         methodToClassMapper=pair.getValue();
     }
@@ -144,14 +144,16 @@ public class OOPMultipleControl {
             Stream<Method> filteredByName = filterByMethodName(methodName, superClassMethods);
             filteredByNameAndArguments.addAll(filterByArguments(filteredByName, args));
         }
-        //now we have collected all the methods, so we search for collisions
-        final Set<Method> collisions = getCollidedMethods(filteredByNameAndArguments);
-        //if we found one by now then we throw an exception
-        if (collisions.size() > 0) {
-            Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
-            //we warp it as a pair before throwing
-            collisions.forEach(m -> pairs.add(new Pair<>(methodToClassMapper.get(m), m)));
-            throw new OOPCoincidentalAmbiguity(pairs);
+        if(filteredByNameAndArguments.size()>1) {
+            //now we have collected all the methods, so we search for collisions
+            final Set<Method> collisions = getCollidedMethods(filteredByNameAndArguments);
+            //if we found one by now then we throw an exception
+            if (collisions.size() > 0) {
+                Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
+                //we warp it as a pair before throwing
+                collisions.forEach(m -> pairs.add(new Pair<>(methodToClassMapper.get(m), m)));
+                throw new OOPCoincidentalAmbiguity(pairs);
+            }
         }
         //no collisions were found so we return what we found so far
         return filteredByNameAndArguments;

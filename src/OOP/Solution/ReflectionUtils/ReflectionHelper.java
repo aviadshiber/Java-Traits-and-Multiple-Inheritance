@@ -9,6 +9,7 @@ import javafx.util.Pair;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,13 +46,16 @@ public class ReflectionHelper {
         }
     }
 
-    public static Map<Method, Class<?>> mapMethodToClass(Class<?>[] superClasses) {
-        Map<Method, Class<?>> classMap = new Hashtable<>();
+    private static void mapMethodToClass(Class<? extends Annotation> methodAnnotation,Map<Method, Class<?>> classMap,Class<?>[] superClasses) {
+
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
         for (Class<?> superInterfaceClass : superClasses) {
-            final List<Method> superClassMethods = new ArrayList<>(Arrays.asList(superInterfaceClass.getMethods()));
+            //Arrays.stream(superInterfaceClass.getDeclaredMethods()).filter(m-> !Modifier.isPrivate(m.getModifiers())).collect(Collectors.toList())
+            final List<Method> superClassMethods = Arrays.stream(superInterfaceClass.getDeclaredMethods()).filter(m-> annotatedAndNotPrivate(m,methodAnnotation)).collect(Collectors.toList());
             //for later use we need to map each method to it's class
             superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
+            final Class<?>[] extendsFromInterfaces=superInterfaceClass.getInterfaces();
+            mapMethodToClass(methodAnnotation,classMap,extendsFromInterfaces);
         }
         //adding methods of imp classes
              /*Class<?> implClass= getClassByConvention(superInterfaceClass);
@@ -60,8 +64,10 @@ public class ReflectionHelper {
                  superClassMethodsOfImpClass.forEach(m -> {classMap.put(m, implClass);});
              }*/
 
+    }
 
-        return classMap;
+    private static boolean annotatedAndNotPrivate(Method m, Class<? extends Annotation> methodAnnotation) {
+        return  m.isAnnotationPresent(methodAnnotation) && !Modifier.isPrivate(m.getModifiers());
     }
 
     private static Class<?> getClassByConvention(Class<?> clazz) {
@@ -364,9 +370,11 @@ public class ReflectionHelper {
         return pairs;
     }
 
-    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait, Class<?> interfaceClass, Class<? extends Annotation> annotation) {
+    public static Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> getInitMaps(boolean isTrait, Class<?> interfaceClass, Class<? extends Annotation> methodAnnotation,Class<? extends Annotation> classAnnotation) {
+
+        Map<Method, Class<?>> methodToClassMapper = new Hashtable<>();
         //fills the method to class map
-        Map<Method, Class<?>> methodToClassMapper = mapMethodToClass(interfaceClass.getInterfaces());
+        mapMethodToClass(methodAnnotation,methodToClassMapper, interfaceClass.getInterfaces());
         /*if(isTrait){
             Map<Method, Class<?>> traitMethodToClassMapper = new Hashtable<>();
             List<Method> implemented = methodToClassMapper.keySet().stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
@@ -378,7 +386,7 @@ public class ReflectionHelper {
         Map<Class<?>, Object> interfaceToObjectMapper = new Hashtable<>();
         //fills the interface to object map
         Collection<Class<?>> allClasses = methodToClassMapper.values();
-        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
+        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(classAnnotation)).collect(Collectors.toList());
         for (Class<?> clazz : annotatedClasses) {
             Object objectInstance = getInstanceByConvention(isTrait, clazz);
             //map interface to object
@@ -435,13 +443,14 @@ public class ReflectionHelper {
      * @return
      */
     public static ArrayList<Integer> getUpcastingVector(Method method,Object...args){
-        ArrayList<Integer> vector=new ArrayList<>();
-        if(args==null)
+        if(args!=null) {
+            ArrayList<Integer> vector = new ArrayList<>(args.length);
+            for (int i = 0; i < args.length; i++) {
+                vector.set(i, calculateIthArgDistance(method, i, args));
+            }
             return vector;
-        for(int i=0;i<args.length;i++){
-            vector.set(i,calculateIthArgDistance(method,i,args));
         }
-        return vector;
+        return new ArrayList<>();
     }
 
     /**
@@ -455,19 +464,22 @@ public class ReflectionHelper {
     public static boolean pairAmbiguity(Method one,Method two,Object... args) {
         if (args == null)
             return true;
-        boolean firstMin = false;
-        boolean secondMin = false;
         ArrayList<Integer> firstArgsDist = getUpcastingVector(one,args);
         ArrayList<Integer> secondArgsDist = getUpcastingVector(two,args);
+        boolean isMinBeenSwapped;
+        int num1=firstArgsDist.get(0);
+        int num2=secondArgsDist.get(0);
+        int min= num1<num2 ?num1 :num2;
+        boolean lastMinWasOne = min==num1;
         for (int i = 0; i < args.length; i++) {
-            if(firstArgsDist.get(i)<secondArgsDist.get(i))
-                firstMin=true;
-            if(firstArgsDist.get(i)>secondArgsDist.get(i)&&firstMin)
+            num1=firstArgsDist.get(i);
+            num2=secondArgsDist.get(i);
+            min= num1<num2 ?num1 :num2;
+            boolean currentIsOne= min==num1;
+            isMinBeenSwapped=currentIsOne!=lastMinWasOne;
+            if(isMinBeenSwapped)
                 return true;
-            if(firstArgsDist.get(i)>secondArgsDist.get(i))
-                secondMin=true;
-            if(firstArgsDist.get(i)<secondArgsDist.get(i)&&secondMin)
-                return true;
+            lastMinWasOne=currentIsOne;
         }
         return false;
     }

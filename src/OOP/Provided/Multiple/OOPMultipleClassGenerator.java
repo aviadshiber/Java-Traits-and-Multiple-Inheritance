@@ -20,7 +20,7 @@ public class OOPMultipleClassGenerator {
     private static final String packageName = "OOP.Solution.Multiple";
     private static final String DispatchClassName = "OOPMultipleControl";
     private static final String sourcePath = System.getProperty("user.dir") + "/src/OOP/Solution/Multiple" + "/";
-    private static final String classPath = System.getProperty("user.dir");
+    private static final String classPath = System.getProperty("user.dir") ;
     private OOPMultipleControl controller;
 
     /***
@@ -109,7 +109,7 @@ public class OOPMultipleClassGenerator {
      */
     private static String getClassString(Class<?> interfaceClass) {
         return packageStatementString() + importStatementString() + classHeaderString(interfaceClass) + "\n" +
-                dispatcherFieldString() + "\n" + constructorFieldString() +
+                dispatcherFieldString() + "\n" + constructorFieldString() +"\n" +
                 interfaceMethodsString(interfaceClass) + "\n }";
     }
 
@@ -160,7 +160,16 @@ public class OOPMultipleClassGenerator {
      */
     private static String constructorFieldString() {
         return "public " + className + "(" + DispatchClassName + " dispatcher){\n"
-                + "this.dispatcher = dispatcher;\n" + "}\n";
+                + "this.dispatcher = dispatcher;\n"+ "}\n"+testFieldString();
+    }
+    /***
+     * Test String field
+     *
+     * @return invoke field string
+     */
+    private static String testFieldString() {
+    return "\npublic Object invokeTest(String s,Object[] objs) throws OOPMultipleException{\n"
+    + "return this.dispatcher.invoke(s,objs);\n" + "}\n";
     }
 
     /***

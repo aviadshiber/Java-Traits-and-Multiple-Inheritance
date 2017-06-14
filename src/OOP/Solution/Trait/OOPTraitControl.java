@@ -35,7 +35,7 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true, traitCollector, OOPTraitBehaviour.class);
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true, traitCollector,OOPTraitMethod.class, OOPTraitBehaviour.class);
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         TraitClassMapper(methodToClassMapper);
