@@ -466,6 +466,7 @@ public class ReflectionHelper {
             return true;
         ArrayList<Integer> firstArgsDist = getUpcastingVector(one,args);
         ArrayList<Integer> secondArgsDist = getUpcastingVector(two,args);
+        if(firstArgsDist.size()==0 || secondArgsDist.size()==0) return false;
         boolean isMinBeenSwapped;
         int num1=firstArgsDist.get(0);
         int num2=secondArgsDist.get(0);
@@ -537,6 +538,8 @@ public class ReflectionHelper {
         Class<?>[] types = m.getParameterTypes();
         if (types.length == 0)
             return args == null;
+        if(args==null && types.length!=0)
+            return false;
         if (args.length != types.length)
             return false;
         for (int i = 0; i < types.length; i++) {
