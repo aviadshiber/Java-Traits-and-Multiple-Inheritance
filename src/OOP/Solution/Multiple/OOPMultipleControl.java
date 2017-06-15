@@ -76,7 +76,7 @@ public class OOPMultipleControl {
                 boolean superClassHasAnyMethod = superClass.getDeclaredMethods().length > 0;
                 if (superClassHasAnyMethod) {
                     final List<Method> allMethods = new ArrayList<>(Arrays.asList(superClass.getDeclaredMethods()));
-                    final List<Method> annotatedMethods = allMethods.stream().filter(method -> !Modifier.isPrivate(method.getModifiers()) && method.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
+                    final List<Method> annotatedMethods = allMethods.stream().filter(method -> isAnnotatedAndNotPrivate(method,methodAnnotation)).collect(Collectors.toList());
                     boolean annotatedMethodExist = annotatedMethods.size() > 0;
                     if (annotatedMethodExist) {
                         boolean structuralCollisionExist = interfaceSet.contains(superClass);

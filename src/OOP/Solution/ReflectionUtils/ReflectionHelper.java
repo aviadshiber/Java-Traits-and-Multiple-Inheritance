@@ -51,7 +51,7 @@ public class ReflectionHelper {
         //we iterate on all super classes and we collect all methods which are equal by name and possible arguments
         for (Class<?> superInterfaceClass : superClasses) {
             //Arrays.stream(superInterfaceClass.getDeclaredMethods()).filter(m-> !Modifier.isPrivate(m.getModifiers())).collect(Collectors.toList())
-            final List<Method> superClassMethods = Arrays.stream(superInterfaceClass.getDeclaredMethods()).filter(m-> annotatedAndNotPrivate(m,methodAnnotation)).collect(Collectors.toList());
+            final List<Method> superClassMethods = Arrays.stream(superInterfaceClass.getDeclaredMethods()).filter(m-> isAnnotatedAndNotPrivate(m,methodAnnotation)).collect(Collectors.toList());
             //for later use we need to map each method to it's class
             superClassMethods.forEach(m -> classMap.put(m, superInterfaceClass));
             final Class<?>[] extendsFromInterfaces=superInterfaceClass.getInterfaces();
@@ -66,7 +66,7 @@ public class ReflectionHelper {
 
     }
 
-    private static boolean annotatedAndNotPrivate(Method m, Class<? extends Annotation> methodAnnotation) {
+    public static boolean isAnnotatedAndNotPrivate(Method m, Class<? extends Annotation> methodAnnotation) {
         return  m.isAnnotationPresent(methodAnnotation) && !Modifier.isPrivate(m.getModifiers());
     }
 
