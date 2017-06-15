@@ -9,7 +9,6 @@ import javafx.util.Pair;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +54,7 @@ public class OOPMultipleControl {
 
 
     private void validateForCommonParent() throws OOPInherentAmbiguity {
+        //the interfaceSet maps class to it's child
         Set<Class<?>> interfaceSet = new HashSet<>();
         validateForCommonParent(interfaceClass, interfaceSet
                 , OOPMultipleInterface.class, OOPMultipleMethod.class);
@@ -64,12 +64,12 @@ public class OOPMultipleControl {
      * the method validate for common Parent with at least one method which exist using DFS traverse.
      * if such parent was found an exception will be thrown.
      *
-     * @param interfaceClass the interface to start the search.
+     * @param currentInterfaceClass the interface to start the search.
      * @param interfaceSet   the set to check of collisions.
      * @throws OOPInherentAmbiguity is a structural collision exception.
      */
-    private void validateForCommonParent(Class<?> interfaceClass, Set<Class<?>> interfaceSet, Class<? extends Annotation> classAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPInherentAmbiguity {
-        Class<?>[] superClasses = interfaceClass.getInterfaces();
+    private void validateForCommonParent(Class<?> currentInterfaceClass, Set<Class<?>> interfaceSet, Class<? extends Annotation> classAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPInherentAmbiguity {
+        Class<?>[] superClasses = currentInterfaceClass.getInterfaces();
         for (Class<?> superClass : superClasses) {
             boolean isSuperClassAnnotated = superClass.isAnnotationPresent(classAnnotation);
             if (isSuperClassAnnotated) {
@@ -80,8 +80,10 @@ public class OOPMultipleControl {
                     boolean annotatedMethodExist = annotatedMethods.size() > 0;
                     if (annotatedMethodExist) {
                         boolean structuralCollisionExist = interfaceSet.contains(superClass);
-                        if (structuralCollisionExist)
-                            throw new OOPInherentAmbiguity(interfaceClass, superClass, annotatedMethods.get(0));
+                        if (structuralCollisionExist) {
+                            final Method methodToBlame=annotatedMethods.get(0);
+                            throw new OOPInherentAmbiguity(interfaceClass, superClass, methodToBlame);
+                        }
                     }
 
                 }
@@ -91,6 +93,9 @@ public class OOPMultipleControl {
         }
     }
 
+    private static boolean isMethodDeclaredInClass(Class<?> clazz, String methodName){
+     return Arrays.stream(clazz.getDeclaredMethods()).anyMatch(m-> m.getName().equals(methodName));
+    }
 
     /**
      * the method look for CoincidentalAmbiguity of methodName with args, if none exist

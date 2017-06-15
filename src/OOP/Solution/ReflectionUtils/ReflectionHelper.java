@@ -70,7 +70,7 @@ public class ReflectionHelper {
         return  m.isAnnotationPresent(methodAnnotation) && !Modifier.isPrivate(m.getModifiers());
     }
 
-    private static Class<?> getClassByConvention(Class<?> clazz) {
+    public static Class<?> getClassByConvention(Class<?> clazz) {
         String packageName = clazz.getPackage().getName();
         String className = clazz.getSimpleName();
         if (clazz.isInterface() && (className.startsWith(TRAIT_NAME_CONVENTION) || className.startsWith(INTERFACE_NAME_CONVENTION))) {

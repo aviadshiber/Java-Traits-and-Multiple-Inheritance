@@ -152,13 +152,11 @@ public class TestMultiple {
         try {
             I3J obj3J = (I3J) generator.generateMultipleClass(I3J.class);
         } catch (OOPMultipleException e) {
-            generator.removeSourceFile();
-            //TODO: UNCOMMENT AFTER OFIR ANSWER
-            return e.getMessage().contains("because of Inherent Ambiguity, caused by inheriting method: f\n" +
-                    "which is first defined in : OOP.Tests.Multiple.Example.C3F"); // I3F is a diamond :)
-           /* return e.getMessage().equals("OOP.Tests.Multiple.Example.C3J Could not be generated \n" +
+           generator.removeSourceFile();
+
+            return e.getMessage().equals("OOP.Tests.Multiple.Example.C3J Could not be generated \n" +
                     "because of Inherent Ambiguity, caused by inheriting method: f\n" +
-                    "which is first defined in : OOP.Tests.Multiple.Example.C3F"); // I3F is a diamond :)*/
+                    "which is first defined in : OOP.Tests.Multiple.Example.C3F"); // I3F is a diamond :)
         } finally {
             generator.removeSourceFile();
         }
@@ -173,13 +171,9 @@ public class TestMultiple {
             I4N obj4N = (I4N) generator.generateMultipleClass(I4N.class);
         } catch (OOPMultipleException e) {
             generator.removeSourceFile();
-            //TODO: UNCOMMENT AFTER OFIR ANSWER
-            return e.getMessage().contains(
+            return e.getMessage().equals("OOP.Tests.Multiple.Example.C4N Could not be generated \n" +
                     "because of Inherent Ambiguity, caused by inheriting method: g\n" +
-                    "which is first defined in : OOP.Tests.Multiple.Example.C4H");
-          /*  return e.getMessage().equals("OOP.Tests.Multiple.Example.C4N Could not be generated \n" +
-                    "because of Inherent Ambiguity, caused by inheriting method: g\n" +
-                    "which is first defined in : OOP.Tests.Multiple.Example.C4H"); // I4H is a diamond :)*/
+                    "which is first defined in : OOP.Tests.Multiple.Example.C4H"); // I4H is a diamond :)
         } finally {
             generator.removeSourceFile();
         }
