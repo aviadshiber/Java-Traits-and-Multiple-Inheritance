@@ -38,6 +38,7 @@ public class ReflectionHelper {
                         if (oldMapper.containsKey(m))
                             oldMapper.remove(m);
                         oldMapper.put(sameMethod, superInterfaceClass);
+                     //   oldMapper.put(sameMethod,implClass);
                     }
                 } catch (NoSuchMethodException e) {
 
@@ -389,10 +390,12 @@ public class ReflectionHelper {
         List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(classAnnotation)).collect(Collectors.toList());
         for (Class<?> clazz : annotatedClasses) {
             Object objectInstance = getInstanceByConvention(isTrait, clazz);
-            //map interface to object
-            interfaceToObjectMapper.put(clazz, objectInstance);
-            //map class to object
-            interfaceToObjectMapper.put(objectInstance.getClass(), objectInstance);
+            if(objectInstance!=null) { //could be null when dealing with traits
+                //map interface to object
+                interfaceToObjectMapper.put(clazz, objectInstance);
+                //map class to object
+                interfaceToObjectMapper.put(objectInstance.getClass(), objectInstance);
+            }
         }
         return new Pair<>(interfaceToObjectMapper, methodToClassMapper);
     }

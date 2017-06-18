@@ -5,7 +5,7 @@ import OOP.Solution.Trait.OOPTraitBehaviour;
 import OOP.Solution.Trait.OOPTraitMethod;
 
 import static OOP.Solution.Trait.OOPTraitMethodModifier.INTER_IMPL;
-import static OOP.Tests.Trait.Example.Example.obj;
+import static OOP.Tests.Trait.Example.TestTrait.obj;
 
 @OOPTraitBehaviour
 public interface T1 {

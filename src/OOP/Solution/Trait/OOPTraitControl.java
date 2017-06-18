@@ -39,21 +39,27 @@ public class OOPTraitControl {
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         TraitClassMapper(methodToClassMapper);
-        //List<Method> allMethods = getAllOurMethods(traitCollector);
+        List<Method> allMethods2 = getAllOurMethods(traitCollector);
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
 
-        List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
+        List<Method> notAnnotatedMethods = allMethods2.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
-        List<Class<?>> notAnnotatedClass = allMethods.stream().map(methodToClassMapper::get).filter(C ->
+       // List<Class<?>> notAnnotatedClass = allMethods2.stream().map(methodToClassMapper::get).filter(C ->
+        //        C != null && !C.getSimpleName().startsWith(CLASS_NAME_CONVENTION) && !C.isAnnotationPresent(OOPTraitBehaviour.class)
+        //).collect(Collectors.toList());
+        List<Class<?>> notAnnotatedClass = getAllOurTypes(traitCollector).stream().filter(C ->
                 C != null && !C.getSimpleName().startsWith(CLASS_NAME_CONVENTION) && !C.isAnnotationPresent(OOPTraitBehaviour.class)
-        ).collect(Collectors.toList());
+                 ).collect(Collectors.toList());
         if (notAnnotatedClass.size() > 0) {
             throw new OOPBadClass(notAnnotatedClass.get(0));
         }
+      //  if(overrideConflictCheck()!=null)
+      //      throw new OOPTraitConflict(overrideConflictCheck());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         for (Method method : allMethods) {
-            if (implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2))) {
+            //DOES IT HAVE TO BE ABSTRACT?????????????????????? THROW THE ABSTRACT METHOD?
+            if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2)&&method.getName().equals(M2.getName()))) {
                 throw new OOPTraitMissingImpl(method);
             }
         }
@@ -87,9 +93,9 @@ public class OOPTraitControl {
                 if (conflictedMethod.isAnnotationPresent(OOPTraitConflictResolver.class)) {
                     Logger.log("OOPTraitConflictResolver annotation was present");
                     OOPTraitConflictResolver annotation = conflictedMethod.getAnnotation(OOPTraitConflictResolver.class);
-                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve()))) {
+                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve())||(getClassByConvention(classMap.get(m))!=null&&getClassByConvention(classMap.get(m)).equals(annotation.resolve())))) {
                         Logger.log("no resolve was found");
-                        throw new OOPTraitConflict(conflictedMethod);
+                        throw new OOPTraitConflict(conflicts.get(0));
                     }
                 } else {
                     Logger.log("OOPTraitConflictResolver annotation not was present");
@@ -127,7 +133,7 @@ public class OOPTraitControl {
 
         }
         Logger.log("there are conflicts, so search for a resolve");
-        return invokeInTraitMethodConflict(matches, randMethod, args);
+        return invokeInTraitMethodConflict(candidates, randMethod, args);
 
     }
 
@@ -135,7 +141,7 @@ public class OOPTraitControl {
 
         Method toInvoke;
         try {
-            toInvoke = TraitCollector.class.getMethod(randMethod.getName(), randMethod.getParameterTypes());
+            toInvoke = traitCollector.getMethod(randMethod.getName(), randMethod.getParameterTypes());
         } catch (NoSuchMethodException e) {
             //is it possible?
             Logger.log("should not get here , could not get method from trait collector (invokeInTraitMethodConflict)");
@@ -147,7 +153,7 @@ public class OOPTraitControl {
         if (annotation != null) { //there is a resolve annotation
             Logger.log("annotation was found with resolve value:"+annotation.resolve());
            //toInvoke = matches.stream().filter(m -> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList()).get(0);
-            List<Method> resolves= matches.stream().filter(m-> methodToClassMapper.get(m).equals(annotation.resolve())).collect(Collectors.toList());
+            List<Method> resolves= matches.stream().filter(m-> methodToClassMapper.get(m).equals(annotation.resolve())||(getClassByConvention(methodToClassMapper.get(m))!=null&&getClassByConvention(methodToClassMapper.get(m)).equals(annotation.resolve()))).collect(Collectors.toList());
             toInvoke=resolves.get(0);
             Logger.log("toInvoke value (after taking the resolve Trait):"+toInvoke);
         }else{
@@ -165,9 +171,42 @@ public class OOPTraitControl {
         Object obj = interfaceToObjectMapper.get(InvokerClass);
        return  invokeMethod(obj, toInvoke, args);
     }
-
+    public List<Method> methodsAbove(Class<?> interfaceStart){
+        return methodToClassMapper.keySet().stream().filter(M -> getAllOurTypes(interfaceStart).contains(methodToClassMapper.get(M))).collect(Collectors.toList());
+    }
     //TODO: add more of your code :
-
+    public Method overrideConflictCheck(){
+        List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
+        List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        for(Method M:implemented){
+            List<Method> above = methodsAbove(methodToClassMapper.get(M));
+            List<Method> aboveImplemented = above.stream().filter(M2 -> isAnnotatedBy(M2, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+           for(Method M2:aboveImplemented) {
+               if (M2.getName().equals(M.getName()) && methodsHaveSameArguments(M, M2)) {
+                   return M;
+               }
+           }
+        }
+        return null;
+    }
+    public Set<Class<?>> getALLClassesAndInterfaces(Class<?> clazz) {
+        Set<Class<?>> allInterfaces = getAllOurTypes(clazz);
+        Set<Class<?>> allInterfacesAndClasses = new HashSet<>();
+        for(Class<?> currInterface : allInterfaces){
+            Collections.addAll(allInterfacesAndClasses, currInterface);
+            if(getClassByConvention(currInterface)!=null)
+                Collections.addAll(allInterfacesAndClasses, getClassByConvention(currInterface));
+        }
+        return allInterfacesAndClasses;
+    }
+    public Set<Method> getALLMethods(Class<?> clazz) {
+        Set<Class<?>> allInterfacesAndClasses = getALLClassesAndInterfaces(clazz);
+        Set<Method> allMethods = new HashSet<>();
+        for(Class<?> currInterfaceOrClass : allInterfacesAndClasses){
+            Collections.addAll(allMethods, currInterfaceOrClass.getDeclaredMethods());
+        }
+        return allMethods;
+    }
 
     //TODO: DO NOT CHANGE !!!!!!
     public void removeSourceFile() {
