@@ -7,8 +7,6 @@ import OOP.Solution.Multiple.OOPMultipleMethod;
 /**
  * Created by danie_000 on 6/6/2017.
  */
-@OOPMultipleInterface
 public interface I3D extends I3B,I3C {
-    @OOPMultipleMethod
     void f() throws OOPMultipleException;
 }
