@@ -206,6 +206,10 @@ public class ReflectionHelper {
     public static Method methodAmbiguity(List<Method> allMethods, Object... args) {
         if (args == null)
             return null;
+        for(Method M : allMethods){
+            if(allMethods.stream().filter(M2 -> M!=M2 && methodsHaveSameArguments(M,M2)).toArray().length>0)
+                return M;
+        }
         boolean possibleNewMin = false;
         boolean forSureNotNewMin = false;
         int[] minDist = new int[args.length];
@@ -230,14 +234,38 @@ public class ReflectionHelper {
         }
         return null;
     }
-    public static List<Pair<Method,Method>> methodPairAmbiguity(List<Method> allMethods, Object... args){
+    public static boolean pairAmbigNoArgs(Method one,Method two){
+        if(one.getParameterCount()!=two.getParameterCount()||!one.getName().equals(two.getName()))
+            return false;
+        boolean firstIsLower = false;
+        boolean secondIsLower = false;
+        Class<?>[] oneTypes = one.getParameterTypes();
+        Class<?>[] twoTypes = two.getParameterTypes();
+        for(int i=0;i<one.getParameterCount();i++){
+            if(oneTypes[i].isAssignableFrom(twoTypes[i])&&!oneTypes[i].equals(twoTypes[i])) {
+                secondIsLower = true;
+                if(firstIsLower)
+                    return true;
+            }
+            if(twoTypes[i].isAssignableFrom(oneTypes[i])&&!twoTypes[i].equals(oneTypes[i])) {
+                firstIsLower = true;
+                if(secondIsLower)
+                    return true;
+            }
+
+        }
+        return false;
+    }
+    public static List<Pair<Method,Method>> methodPairAmbiguity(List<Method> allMethods){
         List<Method> methodPair = new ArrayList<>();
         List<Pair<Method,Method>> conflictedPairs = new ArrayList<>();
         for(Method M :allMethods){
             for(Method M2 :allMethods){
+
                 methodPair.add(M);
                 methodPair.add(M2);
-                if(methodAmbiguity(methodPair,M.getParameterTypes())!=null)
+
+                if(M!=M2&&(pairAmbigNoArgs(M,M2)||methodsHaveSameArguments(M,M2)))
                     conflictedPairs.add(new Pair<>(M,M2));
                 methodPair.clear();
             }
@@ -246,7 +274,6 @@ public class ReflectionHelper {
             return conflictedPairs;
         return null;
     }
-
     /**
      * the method calculates the total distance of each argument from the method actual types.
      * ******the method assumes that the method have co-variance conformance with the args at least.****
@@ -317,7 +344,12 @@ public class ReflectionHelper {
     public static class MethodDistance {
         int distance;
         Method method;
-
+        public Method getMethod() {
+            return method;
+        }
+        public int getDistance(){
+            return distance;
+        }
         MethodDistance(int distance, Method method) {
             this.distance = distance;
             this.method = method;
@@ -359,7 +391,7 @@ public class ReflectionHelper {
      * @param args
      * @return
      */
-    public static PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) {
+    public static PriorityQueue<MethodDistance> getAllBestMatches(List<Method> filteredMethods,  Object... args) {
         PriorityQueue<MethodDistance> queue = new PriorityQueue<>(Comparator.comparingInt(m -> m.distance));
         filteredMethods.forEach(method -> queue.add(createMethodDistanceObject(method, args)));
         return queue;
@@ -367,7 +399,7 @@ public class ReflectionHelper {
 
     private static Collection<Pair<Class<?>, Method>> getClosestMethodsAsPairs(List<Method> filteredMethods, Map<Method, Class<?>> classMap, Object... args) {
         Collection<Pair<Class<?>, Method>> pairs = new HashSet<>();
-        PriorityQueue<MethodDistance> queue = getAllBestMatches(filteredMethods, classMap, args);
+        PriorityQueue<MethodDistance> queue = getAllBestMatches(filteredMethods, args);
         MethodDistance bestMatch = queue.poll();
         pairs.add(new Pair<>(classMap.get(bestMatch.method), bestMatch.method));
         if (!queue.isEmpty()) {
