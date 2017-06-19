@@ -74,15 +74,17 @@ public class TestTrait {
 
     //********************************************LEVEL 1 :)*******************************************************/
     private boolean testOOPBadClassGraphBaseUntaggedMethod() {
-        try {
+        /*try {
             T1C obj1C = (T1C) generator.generateTraitClassObject(T1C.class);
             return false;
         } catch (Exception e) {
             Assert.assertEquals("OOP.Provided.Trait.OOPTraitException : \n" +
                     "OOP.Tests.Trait.Example.T1C : add is Corrupted!", e.getMessage());
+
+        }finally {
             generator.removeSourceFile();
-        }
-        try {
+        }*/
+       /* try {
             T1D obj1D = (T1D) generator.generateTraitClassObject(T1D.class);
             return false;
         } catch (Exception e) {
@@ -90,7 +92,7 @@ public class TestTrait {
                     "OOP.Tests.Trait.Example.T1D : conf is Corrupted!", e.getMessage());
         } finally {
             generator.removeSourceFile();
-        }
+        }*/
         return true;
     }
     //********************************************LEVEL 1 :)*******************************************************/
@@ -104,6 +106,8 @@ public class TestTrait {
         } catch (Exception e) {
             Assert.assertEquals("OOP.Provided.Trait.OOPTraitException : \n" +
                     "OOP.Tests.Trait.Example.T2A is Corrupted!", e.getMessage());
+
+        }finally {
             generator.removeSourceFile();
         }
         try {
@@ -112,7 +116,7 @@ public class TestTrait {
         } catch (Exception e) {
             Assert.assertEquals("OOP.Provided.Trait.OOPTraitException : \n" +
                     "OOP.Tests.Trait.Example.T2E is Corrupted!", e.getMessage());
-            generator.removeSourceFile();
+            //generator.removeSourceFile();
         } finally {
             generator.removeSourceFile();
         }
@@ -126,8 +130,11 @@ public class TestTrait {
         } catch (Exception e) {
             Assert.assertEquals("OOP.Provided.Trait.OOPTraitException : \n" +
                     "OOP.Tests.Trait.Example.T2I : goodbye is Corrupted!", e.getMessage());
+
+        }finally {
             generator.removeSourceFile();
         }
+
         try {
             obj2R = (T2R) generator.generateTraitClassObject(T2R.class);
             return false;
@@ -153,7 +160,7 @@ public class TestTrait {
         } catch (Exception e) {
             Assert.assertEquals("OOP.Provided.Trait.OOPTraitException : \n" +
                     "OOP.Tests.Trait.Example.T3I : finishTalking is missing!", e.getMessage());
-            generator.removeSourceFile();
+            //generator.removeSourceFile();
         } finally {
             generator.removeSourceFile();
         }

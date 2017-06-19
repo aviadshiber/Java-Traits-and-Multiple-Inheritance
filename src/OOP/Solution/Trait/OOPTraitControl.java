@@ -10,6 +10,7 @@ import javafx.util.Pair;
 
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +36,8 @@ public class OOPTraitControl {
 
     //TODO: fill in here :
     public void validateTraitLayout() throws OOPTraitException {
+        validateTags(OOPTraitBehaviour.class,OOPTraitMethod.class);
+
         Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(true, traitCollector,OOPTraitMethod.class, OOPTraitBehaviour.class);
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
@@ -77,6 +80,31 @@ public class OOPTraitControl {
 
     }
 
+
+    private void validateTags(Class<? extends Annotation> typeAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPBadClass {
+        Class<?>[] superInterfaces = traitCollector.getInterfaces();
+        List<Method> allMethods;
+        for (Class<?> interFace : superInterfaces) {
+            allMethods = getAllOurMethods(interFace);
+            List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
+            if (notAnnotatedMethods.size() > 0)
+                throw new OOPBadClass(notAnnotatedMethods.get(0));
+
+            List<Class<?>> notAnnotatedClasses = getAllOurTypes(interFace).stream().filter(c -> c != null && !c.isAnnotationPresent(typeAnnotation)).collect(Collectors.toList());
+            if (notAnnotatedClasses.size() > 0)
+                throw new OOPBadClass(notAnnotatedClasses.get(0));
+
+            Class<?> implClass = getClassByConvention(interFace);
+            if (implClass != null) {
+                //if there is such a implementing class
+                notAnnotatedMethods = Arrays.stream(implClass.getDeclaredMethods()).filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
+                if (notAnnotatedMethods.size() > 0)
+                    throw new OOPBadClass(notAnnotatedMethods.get(0));
+
+            }
+        }
+
+    }
 
 
 
