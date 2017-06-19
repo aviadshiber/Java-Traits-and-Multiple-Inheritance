@@ -235,6 +235,22 @@ public class ReflectionHelper {
         }
         return null;
     }
+    public static List<Pair<Method,Method>> methodPairAmbiguity(List<Method> allMethods, Object... args){
+        List<Method> methodPair = new ArrayList<>();
+        List<Pair<Method,Method>> conflictedPairs = new ArrayList<>();
+        for(Method M :allMethods){
+            for(Method M2 :allMethods){
+                methodPair.add(M);
+                methodPair.add(M2);
+                if(methodAmbiguity(methodPair,M.getParameterTypes())!=null)
+                    conflictedPairs.add(new Pair<>(M,M2));
+                methodPair.clear();
+            }
+        }
+        if(conflictedPairs.size()!=0)
+            return conflictedPairs;
+        return null;
+    }
 
     /**
      * the method calculates the total distance of each argument from the method actual types.

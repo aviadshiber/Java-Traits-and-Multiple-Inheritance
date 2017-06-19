@@ -64,8 +64,15 @@ public class OOPTraitControl {
             }
         }
         for (Method method : allMethods) {
-            List<Method> conflicts = implemented.stream().filter(otherMethod -> methodsHaveSameArguments(method, otherMethod) && otherMethod.getName().equals(method.getName())).collect(Collectors.toList());
-            validateResolvedConflicts(conflicts, methodToClassMapper);
+            List<Method> conflictedList = new ArrayList<>();
+            List<Method> matches = implemented.stream().filter(otherMethod -> method.getParameterCount()== otherMethod.getParameterCount() && otherMethod.getName().equals(method.getName())).collect(Collectors.toList());
+            List<Pair<Method,Method>> conflictedPairs = methodPairAmbiguity(matches,method.getParameterTypes());
+            if(conflictedPairs!=null) {
+                for(Pair<Method,Method> P : conflictedPairs) {
+                    validateResolvedConflicts(P, methodToClassMapper);
+                    conflictedList.clear();
+                }
+            }
         }
 
 
@@ -83,29 +90,35 @@ public class OOPTraitControl {
         annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
     }*/
 
-    private void validateResolvedConflicts(List<Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
-        if (conflicts.size() > 1) {
-            Logger.log("Conflict was found:"+conflicts);
-            Method conflictedMethod = conflicts.get(0);
-            try {
-                conflictedMethod = traitCollector.getMethod(conflictedMethod.getName(), conflictedMethod.getParameterTypes());
-                Logger.log("the conflicted method in trait collector is:"+conflictedMethod);
-                if (conflictedMethod.isAnnotationPresent(OOPTraitConflictResolver.class)) {
-                    Logger.log("OOPTraitConflictResolver annotation was present");
-                    OOPTraitConflictResolver annotation = conflictedMethod.getAnnotation(OOPTraitConflictResolver.class);
-                    if (conflicts.stream().noneMatch(m -> classMap.get(m).equals(annotation.resolve())||(getClassByConvention(classMap.get(m))!=null&&getClassByConvention(classMap.get(m)).equals(annotation.resolve())))) {
-                        Logger.log("no resolve was found");
-                        throw new OOPTraitConflict(conflicts.get(0));
-                    }
-                } else {
-                    Logger.log("OOPTraitConflictResolver annotation not was present");
-                    throw new OOPTraitConflict(conflictedMethod);
-                }
-            } catch (NoSuchMethodException ignored) {
-                Logger.log("could not find method "+conflictedMethod);
+    private void validateResolvedConflicts(Pair<Method,Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
+        Method conflictedMethodOne = conflicts.getKey();
+        Method conflictedMethodTwo = conflicts.getValue();
+        List<Method> firstList = filterByArguments(filterByMethodName(conflictedMethodOne.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodOne.getParameterTypes());
+        List<Method> secondList = filterByArguments(filterByMethodName(conflictedMethodTwo.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodTwo.getParameterTypes());
+        Method resolver = null;
+        for(Method M : firstList) {
+            for(Method M2 : secondList) {
+                if(M.equals(M2))
+                    resolver = M;
             }
         }
+        if(resolver == null)
+            throw new OOPTraitConflict(conflictedMethodOne);
+        Logger.log("the conflicted method in trait collector is:"+resolver);
+        if (resolver.isAnnotationPresent(OOPTraitConflictResolver.class)) {
+            Logger.log("OOPTraitConflictResolver annotation was present");
+            OOPTraitConflictResolver annotation = resolver.getAnnotation(OOPTraitConflictResolver.class);
+            if ((classMap.get(conflictedMethodOne).equals(annotation.resolve())||(getClassByConvention(classMap.get(conflictedMethodOne))!=null&&getClassByConvention(classMap.get(conflictedMethodOne)).equals(annotation.resolve())))&&
+                    (classMap.get(conflictedMethodTwo).equals(annotation.resolve())||(getClassByConvention(classMap.get(conflictedMethodTwo))!=null&&getClassByConvention(classMap.get(conflictedMethodTwo)).equals(annotation.resolve())))) {
+                Logger.log("no resolve was found");
+                throw new OOPTraitConflict(conflictedMethodOne);
+            }
+        } else {
+            Logger.log("OOPTraitConflictResolver annotation not was present");
+            throw new OOPTraitConflict(conflictedMethodOne);
+        }
     }
+
 
     //TODO: fill in here :
     public Object invoke(String methodName, Object[] args)
@@ -117,8 +130,6 @@ public class OOPTraitControl {
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
         Logger.log("matches:"+matches);
-        if(methodAmbiguity(matches,args)!=null)
-            throw new OOPTraitConflict(methodAmbiguity(matches,args));
        List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
         Logger.log("candidates:"+candidates);
         Method randMethod = candidates.get(0);
