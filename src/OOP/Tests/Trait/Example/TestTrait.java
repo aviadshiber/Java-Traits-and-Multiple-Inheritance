@@ -359,47 +359,6 @@ public class TestTrait {
         E e = new E();
         Object o = new Object();
 
-
-        try {
-            T6D obj6D = (T6D) generator.generateTraitClassObject(T6D.class);
-            obj6D.getClass().getMethod("invokeTest", types).invoke(obj6D, "f", new Object[]{d, d, a});
-            return false;
-        } catch (Exception ex) {
-            Assert.assertTrue(
-                    ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                            "OOP.Tests.Trait.Example.T6B : f is conflicting!") // C6B is better, but conflict regards
-                            // a gladiator fight... so mainly the other checks (C6B or T6A) is thrown :)
-                            ||
-                            ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                                    "OOP.Tests.Trait.Example.C6B : f is conflicting!")
-                            ||
-                            ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                                    "OOP.Tests.Trait.Example.T6A : f is conflicting!")
-
-            );
-            generator.removeSourceFile();
-        }
-
-        try {
-            T6D obj6D = (T6D) generator.generateTraitClassObject(T6D.class);
-            obj6D.getClass().getMethod("invokeTest", types).invoke(obj6D, "f", new Object[]{e, e, c});
-            return false;
-        } catch (Exception ex) {
-            Assert.assertTrue(
-                    ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                            "OOP.Tests.Trait.Example.T6B : f is conflicting!") // C6B is better, but conflict regards
-                            // a gladiator fight... so mainly the other checks (C6B or T6A) is thrown :)
-                            ||
-                            ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                                    "OOP.Tests.Trait.Example.C6B : f is conflicting!")
-                            ||
-                            ex.getCause().getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
-                                    "OOP.Tests.Trait.Example.T6A : f is conflicting!")
-
-            );
-            generator.removeSourceFile();
-        }
-
         try {
             T6D obj6D = (T6D) generator.generateTraitClassObject(T6D.class);
             obj6D.getClass().getMethod("invokeTest", types).invoke(obj6D, "f", new Object[]{e, d, c});
@@ -417,7 +376,6 @@ public class TestTrait {
                                     "OOP.Tests.Trait.Example.T6A : f is conflicting!")
 
             );
-            generator.removeSourceFile();
         } finally {
             generator.removeSourceFile();
         }
@@ -478,39 +436,38 @@ public class TestTrait {
     boolean testOOPUpcastImplementationForAbstractMethodExistsAux() {
         try {
             T8H obj8H = (T8H) generator.generateTraitClassObject(T8H.class);
-            generator.removeSourceFile();
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return false;
+        } finally {
+            generator.removeSourceFile();
         }
 
-        try {
-            T8H obj8H = (T8H) generator.generateTraitClassObject(T8H.class);
-            generator.removeSourceFile();
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());
-            return false;
-        }
 
         try {
             T8J obj8H = (T8J) generator.generateTraitClassObject(T8J.class);
-            generator.removeSourceFile();
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return false;
+        } finally {
+            generator.removeSourceFile();
         }
 
         try {
             T8L obj8L = (T8L) generator.generateTraitClassObject(T8L.class);
-            generator.removeSourceFile();
+
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return false;
+        } finally {
+            generator.removeSourceFile();
         }
+
 
         try {
             T8O obj8O = (T8O) generator.generateTraitClassObject(T8O.class);
-            generator.removeSourceFile();
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return false;
@@ -533,8 +490,8 @@ public class TestTrait {
                     ex.getMessage().equals("OOP.Provided.Trait.OOPTraitException : \n" +
                             "OOP.Tests.Trait.Example.T9B : f is conflicting!")
             ); // We need to throw one of the f's, so both options to throw are possible :)
-           // generator.removeSourceFile();
-        }finally{
+            // generator.removeSourceFile();
+        } finally {
             generator.removeSourceFile();
         }
 
@@ -550,8 +507,7 @@ public class TestTrait {
             ); // We need to throw one of the f's, so both options to throw are possible :)
             // Notice that C9D has the implementation here, not T9D :)
 
-        }
-        finally{
+        } finally {
             generator.removeSourceFile();
         }
 
@@ -567,7 +523,7 @@ public class TestTrait {
             ); // We need to throw one of the f's, so both options to throw are possible :)
             // Notice that C9D has the implementation here, not T9D :)
 
-        }finally {
+        } finally {
             generator.removeSourceFile();
         }
 
@@ -583,7 +539,7 @@ public class TestTrait {
             ); // We need to throw one of the f's, so both options to throw are possible :)
             // Notice that C9D has the implementation here, not T9D :)
 
-        }finally {
+        } finally {
             generator.removeSourceFile();
         }
 
@@ -767,17 +723,15 @@ public class TestTrait {
             /*
              * DO NOT TEST THESE CASES, As there is no solution for them (The 3 below ) :)
              */
-         //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
-         //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
-         //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
+            //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
+            //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
+            //   Assert.assertEquals("T10J :)", obj10K.getClass().getMethod("invokeTest", types).invoke(obj10K, "winUltimate", new Object[]{c, c}));
 
 
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return false;
-        }
-        finally {
+        } finally {
             generator.removeSourceFile();
         }
         return true;
