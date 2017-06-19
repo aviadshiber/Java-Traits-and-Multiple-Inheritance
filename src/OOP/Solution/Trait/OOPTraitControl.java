@@ -109,8 +109,8 @@ public class OOPTraitControl {
     private void validateResolvedConflicts(Pair<Method,Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         Method conflictedMethodOne = conflicts.getKey();
         Method conflictedMethodTwo = conflicts.getValue();
-        List<Method> firstList = filterByArguments(filterByMethodName(conflictedMethodOne.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodOne.getParameterTypes());
-        List<Method> secondList = filterByArguments(filterByMethodName(conflictedMethodTwo.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodTwo.getParameterTypes());
+        List<Method> firstList = filterByArgumentsTypes(filterByMethodName(conflictedMethodOne.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodOne.getParameterTypes());
+        List<Method> secondList = filterByArgumentsTypes(filterByMethodName(conflictedMethodTwo.getName(), Arrays.stream(traitCollector.getDeclaredMethods()).collect(Collectors.toList())),conflictedMethodTwo.getParameterTypes());
         Method resolver = null;
         for(Method M : firstList) {
             for(Method M2 : secondList) {
@@ -146,34 +146,42 @@ public class OOPTraitControl {
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         List<Method> matches = filterByArguments(filterByMethodName(methodName, implemented), args);
         Logger.log("matches:"+matches);
-       List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
-        Logger.log("candidates:"+candidates);
-        Method randMethod = candidates.get(0);
-        if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && methodsHaveSameArguments(M, randMethod)))) {
-            Logger.log("more than one candidate was found->Conflict.. throwing exception,SHOULD NOT GET HERE");
-            throw new OOPTraitConflict(randMethod);
-        }
-       if(candidates.size() == 1){// no conflicts so just invoke
-            Method toInvoke = candidates.get(0);
+//       List<Method> candidates = getClosestMethods(matches, methodToClassMapper, args);
+//        Logger.log("candidates:"+candidates);
+//        Method randMethod = candidates.get(0);
+//        if (!candidates.stream().allMatch(M -> (M.getName().equals(randMethod.getName()) && checkForArgsEquality(M, args)))) {
+//            Logger.log("more than one candidate was found->Conflict.. throwing exception,SHOULD NOT GET HERE");
+//            throw new OOPTraitConflict(randMethod);
+//        }
+       if(matches.size() == 1){// no conflicts so just invoke
+            Method toInvoke = matches.get(0);
             Logger.log("no conflicts, only one candidate, trying to invoke:"+toInvoke);
             return invokeTraitMethod(toInvoke,args);
 
         }
         Logger.log("there are conflicts, so search for a resolve");
-        return invokeInTraitMethodConflict(candidates, randMethod, args);
+        return invokeInTraitMethodConflict(matches, args);
 
     }
-
-    private Object invokeInTraitMethodConflict(List<Method> matches, Method randMethod, Object[] args) {
-
-        Method toInvoke;
-        try {
-            toInvoke = traitCollector.getMethod(randMethod.getName(), randMethod.getParameterTypes());
-        } catch (NoSuchMethodException e) {
+    private Method findResolver(List<Method> matches, Object[] args){
+        for(Method M2 : traitCollector.getDeclaredMethods()){
+            boolean foundResolver = matches.stream().allMatch(M -> (M.getName().equals(M2.getName())&&M.getParameterCount()==M2.getParameterCount()&&(checkForTypesEquality(M2,M.getParameterTypes()))));
+            if(foundResolver){
+                return M2;
+            }
+        }
+        return null;
+    }
+    private Object invokeInTraitMethodConflict(List<Method> matches, Object[] args) {
+        Method toInvoke = findResolver(matches , args);
+       /* try {
+*/
+            //toInvoke = traitCollector.getMethod(randMethod.getName(), randMethod.getParameterTypes());
+        /*} catch (NoSuchMethodException e) {
             //is it possible?
             Logger.log("should not get here , could not get method from trait collector (invokeInTraitMethodConflict)");
             return null;
-        }
+        }*/
 
         OOPTraitConflictResolver annotation = toInvoke.getAnnotation(OOPTraitConflictResolver.class);
         Logger.log("annotation value:"+annotation);
@@ -185,7 +193,7 @@ public class OOPTraitControl {
             Logger.log("toInvoke value (after taking the resolve Trait):"+toInvoke);
         }else{
             Logger.log("the annotation was not found in method"+toInvoke);
-            toInvoke=randMethod;
+            //toInvoke=randMethod;
 
             Logger.log("invoking "+toInvoke+" as default");
         }

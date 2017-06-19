@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a740eeae-136c-40ff-80d5-feb08794d8f8" name="Default" comment="fixing all!">
+    <list default="true" id="a740eeae-136c-40ff-80d5-feb08794d8f8" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java" afterPath="$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java" afterPath="$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java" afterPath="$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -29,14 +29,26 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="OOPTraitControl.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ReflectionHelper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="100">
+              <caret line="570" column="26" lean-forward="false" selection-start-line="570" selection-start-column="26" selection-end-line="570" selection-end-column="47" />
+              <folding>
+                <marker date="1497900037068" expanded="true" signature="17349:17438" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OOPTraitControl.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="163">
-              <caret line="84" column="13" lean-forward="true" selection-start-line="82" selection-start-column="11" selection-end-line="84" selection-end-column="13" />
+            <state relative-caret-position="-1825">
+              <caret line="117" column="33" lean-forward="true" selection-start-line="117" selection-start-column="33" selection-end-line="117" selection-end-column="33" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <marker date="1497897758349" expanded="true" signature="7832:8741" ph="{...}" />
+                <marker date="1497900037209" expanded="true" signature="7842:8734" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -45,8 +57,48 @@
       <file leaf-file-name="TestTrait.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/TestTrait.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="63">
-              <caret line="103" column="0" lean-forward="false" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
+            <state relative-caret-position="130">
+              <caret line="679" column="69" lean-forward="true" selection-start-line="679" selection-start-column="69" selection-end-line="679" selection-end-column="69" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="T10K.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10K.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="100">
+              <caret line="10" column="36" lean-forward="false" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="T10B.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10B.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="100">
+              <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="C10B.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/C10B.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="187">
+              <caret line="12" column="25" lean-forward="true" selection-start-line="12" selection-start-column="25" selection-end-line="12" selection-end-column="25" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="T10A.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10A.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="37">
+              <caret line="11" column="17" lean-forward="false" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -72,7 +124,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OOPMultipleControl.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="OOPMultipleControl.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="167">
@@ -149,8 +201,8 @@
         <option value="$PROJECT_DIR$/src/OOP/Tests/Multiple/CoincidentalAmbiguityTest/MainTest.java" />
         <option value="$PROJECT_DIR$/src/OOP/Tests/Trait/Example/TestTrait.java" />
         <option value="$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java" />
-        <option value="$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java" />
         <option value="$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java" />
+        <option value="$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java" />
       </list>
     </option>
   </component>
@@ -246,10 +298,6 @@
               <option name="myItemId" value="Tests" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Example" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -270,6 +318,10 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="Tests" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Example" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1120,14 +1172,7 @@
       <workItem from="1497461227805" duration="22196000" />
       <workItem from="1497539748698" duration="526000" />
       <workItem from="1497589441005" duration="736000" />
-      <workItem from="1497887015939" duration="10595000" />
-    </task>
-    <task id="LOCAL-00004" summary="adding TODO comment">
-      <created>1496179429867</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1496179429867</updated>
+      <workItem from="1497887015939" duration="12690000" />
     </task>
     <task id="LOCAL-00005" summary="implementing invoke">
       <created>1496235938733</created>
@@ -1465,28 +1510,17 @@
       <option name="project" value="LOCAL" />
       <updated>1497897193984</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="fixing validations">
+      <created>1497898002684</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1497898002684</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="TestTrait - 2017.06.19 at 21h 30m 13s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestTrait - 2017.06.19 at 21h 30m 29s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestTrait - 2017.06.19 at 21h 32m 26s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestTrait - 2017.06.19 at 21h 35m 39s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestTrait - 2017.06.19 at 21h 35m 55s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="TestTrait - 2017.06.19 at 21h 37m 20s.xml">
-      <configuration name="TestTrait" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="TestTrait - 2017.06.19 at 21h 39m 31s.xml">
       <configuration name="TestTrait" configurationId="JUnit" />
     </history-entry>
@@ -1499,9 +1533,27 @@
     <history-entry file="TestTrait - 2017.06.19 at 21h 45m 08s.xml">
       <configuration name="TestTrait" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 21h 49m 24s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 21h 49m 33s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 21h 51m 08s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 21h 51m 34s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 22h 21m 25s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="TestTrait - 2017.06.19 at 22h 21m 36s.xml">
+      <configuration name="TestTrait" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="195395000" />
+    <option name="totallyTimeSpent" value="197490000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1531,7 +1583,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3269565" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2874618" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2874618" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295107" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3252174" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1539,7 +1591,7 @@
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.51304346" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33913043" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1586,7 +1638,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
-    <MESSAGE value="remove method" />
     <MESSAGE value="fixing doc" />
     <MESSAGE value="adding doc to validateCoincidentalAmbiguity" />
     <MESSAGE value="add private modifiers" />
@@ -1611,7 +1662,8 @@
     <MESSAGE value="fixing tests" />
     <MESSAGE value="fixing all!" />
     <MESSAGE value="fixing validation of bad tags" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing validation of bad tags" />
+    <MESSAGE value="fixing validations" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixing validations" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1636,18 +1688,20 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/TestTrait.java</url>
-          <line>127</line>
+          <line>682</line>
           <properties />
-          <option name="timeStamp" value="111" />
+          <option name="timeStamp" value="113" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/TestTrait.java</url>
-          <line>103</line>
-          <properties />
-          <option name="timeStamp" value="112" />
+          <url>file://$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java</url>
+          <line>151</line>
+          <properties>
+            <option name="lambda-ordinal" value="-1" />
+          </properties>
+          <option name="timeStamp" value="115" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="113" />
+      <option name="time" value="116" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="JUnit">
@@ -1660,62 +1714,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Multiple/Example/C6C.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="9" column="50" lean-forward="false" selection-start-line="9" selection-start-column="50" selection-end-line="9" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/internal/runners/model/ReflectiveCallable.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/ParentRunner.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="49">
-          <caret line="202" column="0" lean-forward="false" selection-start-line="202" selection-start-column="0" selection-end-line="202" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/Assert.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
-          <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Provided/Multiple/OOPMultipleException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="50">
-          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Multiple/Example/I3E.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Multiple/Example/C3J.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="6" column="30" lean-forward="true" selection-start-line="6" selection-start-column="30" selection-end-line="6" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Multiple/Example/C3H.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="6" column="31" lean-forward="false" selection-start-line="6" selection-start-column="31" selection-end-line="6" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Multiple/Example/I3H.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -1888,16 +1886,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="445">
-          <caret line="40" column="13" lean-forward="true" selection-start-line="30" selection-start-column="11" selection-end-line="40" selection-end-column="13" />
-          <folding>
-            <marker date="1497894977986" expanded="true" signature="17349:17438" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T2M.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="13">
@@ -1934,14 +1922,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
           <caret line="11" column="28" lean-forward="false" selection-start-line="11" selection-start-column="28" selection-end-line="11" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/A.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
           <folding />
         </state>
       </provider>
@@ -2010,6 +1990,62 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Provided/Multiple/OOPBadClass.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="25" column="11" lean-forward="false" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="50" column="13" lean-forward="true" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/A.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/B.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/C.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/D.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/E.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="13" lean-forward="false" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T2C.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="25">
@@ -2026,38 +2062,64 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10A.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="37">
+          <caret line="11" column="17" lean-forward="false" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/TestTrait.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="103" column="0" lean-forward="false" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
+        <state relative-caret-position="130">
+          <caret line="679" column="69" lean-forward="true" selection-start-line="679" selection-start-column="69" selection-end-line="679" selection-end-column="69" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10K.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="10" column="36" lean-forward="false" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/T10B.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Tests/Trait/Example/C10B.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="12" column="25" lean-forward="true" selection-start-line="12" selection-start-column="25" selection-end-line="12" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/OOP/Solution/ReflectionUtils/ReflectionHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="570" column="26" lean-forward="false" selection-start-line="570" selection-start-column="26" selection-end-line="570" selection-end-column="47" />
+          <folding>
+            <marker date="1497900037068" expanded="true" signature="17349:17438" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/OOP/Solution/Trait/OOPTraitControl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="84" column="13" lean-forward="true" selection-start-line="82" selection-start-column="11" selection-end-line="84" selection-end-column="13" />
+        <state relative-caret-position="-1825">
+          <caret line="117" column="33" lean-forward="true" selection-start-line="117" selection-start-column="33" selection-end-line="117" selection-end-column="33" />
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1497897758349" expanded="true" signature="7832:8741" ph="{...}" />
+            <marker date="1497900037209" expanded="true" signature="7842:8734" ph="{...}" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Provided/Multiple/OOPBadClass.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="25" column="11" lean-forward="false" selection-start-line="25" selection-start-column="11" selection-end-line="25" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/OOP/Solution/Multiple/OOPMultipleControl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="50" column="13" lean-forward="true" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>

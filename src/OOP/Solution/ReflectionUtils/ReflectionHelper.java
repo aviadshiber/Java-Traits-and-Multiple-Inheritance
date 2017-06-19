@@ -568,7 +568,7 @@ public class ReflectionHelper {
         return true;
     }
 
-    private static boolean checkForTypesEquality(Method m, Class<?>[] otherTypes) {
+    public static boolean checkForTypesEquality(Method m, Class<?>[] otherTypes) {
         Class<?>[] types = m.getParameterTypes();
         if(types==null || otherTypes==null)
             return types==otherTypes;
