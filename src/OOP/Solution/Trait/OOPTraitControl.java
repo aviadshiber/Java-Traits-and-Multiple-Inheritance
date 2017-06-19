@@ -39,10 +39,8 @@ public class OOPTraitControl {
         interfaceToObjectMapper = pair.getKey();
         methodToClassMapper = pair.getValue();
         TraitClassMapper(methodToClassMapper);
-        List<Method> allMethods2 = getAllOurMethods(traitCollector);
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
-
-        List<Method> notAnnotatedMethods = allMethods2.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
+        List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
         if (notAnnotatedMethods.size() > 0)
             throw new OOPBadClass(notAnnotatedMethods.get(0));
        // List<Class<?>> notAnnotatedClass = allMethods2.stream().map(methodToClassMapper::get).filter(C ->
@@ -79,16 +77,10 @@ public class OOPTraitControl {
     }
 
 
-   /* private void fillMaps(Class<? extends  Annotation> annotation) {
-        //fills the method to class map
-        methodToClassMapper =mapMethodToClass(traitCollector.getInterfaces());
 
-        interfaceToObjectMapper = new Hashtable<>();
-        //fills the interface to object map
-        Collection<Class<?>> allClasses = methodToClassMapper.values();
-        List<Class<?>> annotatedClasses = allClasses.stream().filter(c -> c.isAnnotationPresent(annotation)).collect(Collectors.toList());
-        annotatedClasses.forEach(clazz -> interfaceToObjectMapper.put(clazz, getInstanceByConvention(clazz)));
-    }*/
+    private void validateAbsImpl(List<Method> absMethods){
+
+    }
 
     private void validateResolvedConflicts(Pair<Method,Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         Method conflictedMethodOne = conflicts.getKey();

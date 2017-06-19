@@ -34,12 +34,7 @@ public class ReflectionHelper {
                 //if there is such a implementing class
                 try {
                     final Method sameMethod = implClass.getMethod(m.getName(), m.getParameterTypes());
-                    if (isAnnotatedBy(sameMethod, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)) {
-                        if (oldMapper.containsKey(m))
-                            oldMapper.remove(m);
-                        oldMapper.put(sameMethod, superInterfaceClass);
-                     //   oldMapper.put(sameMethod,implClass);
-                    }
+                        oldMapper.put(sameMethod, implClass);
                 } catch (NoSuchMethodException e) {
 
                 }
