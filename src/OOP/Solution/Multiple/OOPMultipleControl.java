@@ -37,19 +37,24 @@ public class OOPMultipleControl {
         validateTags(OOPMultipleInterface.class, OOPMultipleMethod.class);
         validateForCommonParent();
         //we need to map each interface to it's instance
-        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair= getInitMaps(false,interfaceClass,OOPMultipleMethod.class,OOPMultipleInterface.class);
-        interfaceToObjectMapper=pair.getKey();
-        methodToClassMapper=pair.getValue();
+        Pair<Map<Class<?>, Object>, Map<Method, Class<?>>> pair = getInitMaps(false, interfaceClass, OOPMultipleMethod.class, OOPMultipleInterface.class);
+        interfaceToObjectMapper = pair.getKey();
+        methodToClassMapper = pair.getValue();
     }
 
     private void validateTags(Class<? extends Annotation> typeAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPBadClass {
-        List<Method> allMethods = getAllOurMethods(interfaceClass);
-        List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
-        if (notAnnotatedMethods.size() > 0)
-            throw new OOPBadClass(notAnnotatedMethods.get(0));
-        List<Class<?>> notAnnotatedClasses = getAllOurTypes(interfaceClass).stream().filter(c -> c != null && !c.isAnnotationPresent(typeAnnotation)).collect(Collectors.toList());
-        if (notAnnotatedClasses.size() > 0)
-            throw new OOPBadClass(notAnnotatedClasses.get(0));
+        Class<?>[] superInterfaces = interfaceClass.getInterfaces();
+        List<Method> allMethods;
+        for (Class<?> interFace : superInterfaces) {
+            allMethods = getAllOurMethods(interFace);
+            List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
+            if (notAnnotatedMethods.size() > 0)
+                throw new OOPBadClass(notAnnotatedMethods.get(0));
+
+            List<Class<?>> notAnnotatedClasses = getAllOurTypes(interFace).stream().filter(c -> c != null && !c.isAnnotationPresent(typeAnnotation)).collect(Collectors.toList());
+            if (notAnnotatedClasses.size() > 0)
+                throw new OOPBadClass(notAnnotatedClasses.get(0));
+        }
     }
 
 
@@ -65,7 +70,7 @@ public class OOPMultipleControl {
      * if such parent was found an exception will be thrown.
      *
      * @param currentInterfaceClass the interface to start the search.
-     * @param interfaceSet   the set to check of collisions.
+     * @param interfaceSet          the set to check of collisions.
      * @throws OOPInherentAmbiguity is a structural collision exception.
      */
     private void validateForCommonParent(Class<?> currentInterfaceClass, Set<Class<?>> interfaceSet, Class<? extends Annotation> classAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPInherentAmbiguity {
@@ -76,12 +81,12 @@ public class OOPMultipleControl {
                 boolean superClassHasAnyMethod = superClass.getDeclaredMethods().length > 0;
                 if (superClassHasAnyMethod) {
                     final List<Method> allMethods = new ArrayList<>(Arrays.asList(superClass.getDeclaredMethods()));
-                    final List<Method> annotatedMethods = allMethods.stream().filter(method -> isAnnotatedAndNotPrivate(method,methodAnnotation)).collect(Collectors.toList());
+                    final List<Method> annotatedMethods = allMethods.stream().filter(method -> isAnnotatedAndNotPrivate(method, methodAnnotation)).collect(Collectors.toList());
                     boolean annotatedMethodExist = annotatedMethods.size() > 0;
                     if (annotatedMethodExist) {
                         boolean structuralCollisionExist = interfaceSet.contains(superClass);
                         if (structuralCollisionExist) {
-                            final Method methodToBlame=annotatedMethods.get(0);
+                            final Method methodToBlame = annotatedMethods.get(0);
                             throw new OOPInherentAmbiguity(interfaceClass, superClass, methodToBlame);
                         }
                     }
@@ -93,8 +98,8 @@ public class OOPMultipleControl {
         }
     }
 
-    private static boolean isMethodDeclaredInClass(Class<?> clazz, String methodName){
-     return Arrays.stream(clazz.getDeclaredMethods()).anyMatch(m-> m.getName().equals(methodName));
+    private static boolean isMethodDeclaredInClass(Class<?> clazz, String methodName) {
+        return Arrays.stream(clazz.getDeclaredMethods()).anyMatch(m -> m.getName().equals(methodName));
     }
 
     /**
@@ -115,31 +120,33 @@ public class OOPMultipleControl {
         Class<?> methodInClass = methodToClassMapper.get(bestMatch);
         Object obj = getInstanceFromClass(methodInClass);
 
-        return invokeMethod( obj,bestMatch, args);
+        return invokeMethod(obj, bestMatch, args);
     }
 
     /**
      * the method will create an instance of the class, based on the interfaceToObjectMapper if can,
      * if not it will create new.
+     *
      * @param clazz the class/interface
      * @return object instance of the clazz
      */
     private Object getInstanceFromClass(Class<?> clazz) {
-       return interfaceToObjectMapper!=null ? interfaceToObjectMapper.get(clazz) : getInstanceByConvention(false,clazz);
+        return interfaceToObjectMapper != null ? interfaceToObjectMapper.get(clazz) : getInstanceByConvention(false, clazz);
     }
 
 
     /**
      * the method validates for Coincidental Ambiguity in the superClasses(& super interfaces) of interfaceClass
      * with methodName and arguments
+     *
      * @param interfaceClass the interface class
-     * @param methodName the method name
-     * @param args the arguments
+     * @param methodName     the method name
+     * @param args           the arguments
      * @return a list of methods which were filtered by method name and arguments
      * @throws OOPCoincidentalAmbiguity if there is ambiguity
      */
     private List<Method> validateCoincidentalAmbiguity(Class<?> interfaceClass
-                                                       , String methodName, Object... args) throws OOPCoincidentalAmbiguity {
+            , String methodName, Object... args) throws OOPCoincidentalAmbiguity {
         Class<?>[] superClasses = interfaceClass.getInterfaces();
         List<Method> filteredByNameAndArguments = new ArrayList<>();
 
@@ -149,7 +156,7 @@ public class OOPMultipleControl {
             Stream<Method> filteredByName = filterByMethodName(methodName, superClassMethods);
             filteredByNameAndArguments.addAll(filterByArguments(filteredByName, args));
         }
-        if(filteredByNameAndArguments.size()>1) {
+        if (filteredByNameAndArguments.size() > 1) {
             //now we have collected all the methods, so we search for collisions
             final Set<Method> collisions = getCollidedMethods(filteredByNameAndArguments);
             //if we found one by now then we throw an exception

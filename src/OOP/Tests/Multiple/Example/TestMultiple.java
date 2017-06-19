@@ -3,12 +3,14 @@ package OOP.Tests.Multiple.Example;
 import OOP.Provided.Multiple.OOPBadClass;
 import OOP.Provided.Multiple.OOPMultipleClassGenerator;
 import OOP.Provided.Multiple.OOPMultipleException;
-import OOP.Solution.Multiple.OOPMultipleControl;
+import OOP.Solution.Multiple.OOPMultipleInterface;
+import OOP.Solution.Multiple.OOPMultipleMethod;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
 
 public class TestMultiple {
 
@@ -16,6 +18,28 @@ public class TestMultiple {
     private Class[] types = new Class[]{String.class, Object[].class};
 
     //********************************************LEVEL 1 :)**************************************************************//
+
+
+    private boolean testOOPMultipleInterfaceAnnotations(){
+        Assert.assertEquals("@java.lang.annotation.Target(value=[TYPE])",OOPMultipleInterface.class.getAnnotation(Target.class).toString());
+        Assert.assertEquals("@java.lang.annotation.Retention(value=RUNTIME)",OOPMultipleInterface.class.getAnnotation(Retention.class).toString());
+        return true;
+    }
+
+    private boolean testOOPMultipleMethodAnnotations(){
+        Assert.assertEquals("@java.lang.annotation.Target(value=[METHOD])",OOPMultipleMethod.class.getAnnotation(Target.class).toString());
+        Assert.assertEquals("@java.lang.annotation.Retention(value=RUNTIME)",OOPMultipleMethod.class.getAnnotation(Retention.class).toString());
+
+        return true;
+    }
+
+    private boolean testOOPMultipleAnnotations(){
+        Assert.assertTrue(testOOPMultipleInterfaceAnnotations());
+        Assert.assertTrue(testOOPMultipleMethodAnnotations());
+
+        return true;
+    }
+
     private boolean testOOPBadClassGraphBaseTagged() {
         try {
             I1A obj1A = (I1A) generator.generateMultipleClass(I1A.class);
@@ -138,7 +162,7 @@ public class TestMultiple {
         try {
             I3D obj3D = (I3D) generator.generateMultipleClass(I3D.class);
         } catch (OOPMultipleException e) {
-            System.out.println("exception was throwned!:"+e);
+            System.out.println(e.getCause());
             generator.removeSourceFile();
             return false; // Inter3A isn't a diamond, it's just an empty base :(
         } finally {
@@ -152,8 +176,7 @@ public class TestMultiple {
         try {
             I3J obj3J = (I3J) generator.generateMultipleClass(I3J.class);
         } catch (OOPMultipleException e) {
-           generator.removeSourceFile();
-
+            generator.removeSourceFile();
             return e.getMessage().equals("OOP.Tests.Multiple.Example.C3J Could not be generated \n" +
                     "because of Inherent Ambiguity, caused by inheriting method: f\n" +
                     "which is first defined in : OOP.Tests.Multiple.Example.C3F"); // I3F is a diamond :)
@@ -448,6 +471,7 @@ public class TestMultiple {
 
         } catch (Exception e) {
             System.out.println(e.getCause());
+            System.out.println(e.getMessage());
             generator.removeSourceFile();
             return false;
             // Should not get here :(
@@ -826,7 +850,7 @@ public class TestMultiple {
         } catch (Exception e) {
             System.out.println(e.getCause());
             generator.removeSourceFile();
-            return true;
+            return false;
 //            Assert.assertTrue(
 //                    (e.getCause().getMessage().equals("Coincidental Ambiguous Method Call. candidates are : \n" +
 //                            "OOP.Tests.Multiple.Example.I6A : f\n" +
@@ -1016,7 +1040,7 @@ public class TestMultiple {
             Assert.assertEquals("007:C7C :)", obj7E.getClass().getMethod("invokeTest", types).invoke(obj7E, "f", new Object[]{a, c, e}));
             Assert.assertEquals("007:C7C :)", obj7E.getClass().getMethod("invokeTest", types).invoke(obj7E, "f", new Object[]{b, c, e}));
             Assert.assertEquals("007:C7C :)", obj7E.getClass().getMethod("invokeTest", types).invoke(obj7E, "f", new Object[]{c, c, e}));
-
+                generator.removeSourceFile(); // The weird issue of test working/failing
         } catch (Exception ex) {
             generator.removeSourceFile();
             System.out.println(ex.getCause());
@@ -2013,6 +2037,12 @@ public class TestMultiple {
     @Test
     public void testOOPBadClass() {
         //********************************************LEVEL 1 :)*******************************************************/
+
+        assert(testOOPMultipleAnnotations()); // Checking if annotations are defined correctly :)
+
+        // Test annotations, as they should be runtime+ their suitable types
+
+
 //        assert (testOOPBadClassGraphBaseTagged());
 //        assert (testOOPBadClassGraphBaseUntaggedInterface());
 //        assert (testOOPBadClassGraphBaseUntaggedMethod());

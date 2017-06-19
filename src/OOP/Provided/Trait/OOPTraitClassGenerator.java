@@ -29,10 +29,10 @@ public class OOPTraitClassGenerator {
      * @param interfaceClass The class file of the lowest interface in the layout.
      *                       This interface is implemented by OOPTrait.
      * @return An Object of the OOP Trait Class.
-     * @throws OOPTraitException
+     * @throws OOP.Trait.OOPTraitException
      */
     public Object generateTraitClassObject(Class<?> interfaceClass)
-            throws OOPTraitException {
+            throws OOP.Provided.Trait.OOPTraitException {
 
         File sourceFile = new File(sourcePath + className + ".java");
         controller = new OOPTraitControl(interfaceClass, sourceFile);
@@ -159,7 +159,12 @@ public class OOPTraitClassGenerator {
      */
     private static String constructorFieldString() {
         return "public " + className + "(" + DispatchClassName + " dispatcher){\n"
-                + "this.dispatcher = dispatcher;\n" + "}\n";
+                + "this.dispatcher = dispatcher;\n" + "}\n"+testFieldString();
+    }
+
+    private static String testFieldString() {
+        return "\npublic Object invokeTest(String s,Object[] objs) throws OOPTraitException{\n"
+                + "return this.dispatcher.invoke(s,objs);\n" + "}\n";
     }
 
     /***

@@ -17,7 +17,8 @@ public interface T2O {
         return "Goodbye :)";
     }
 
-    @OOPTraitMethod     //no implementation here
-    String hello() throws OOPTraitException ;
+    default String hello() throws OOPTraitException {
+        return "Error , should be tagged :(";
+    }
 
 }
