@@ -57,7 +57,8 @@ public class OOPTraitControl {
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         for (Method method : allMethods) {
             //DOES IT HAVE TO BE ABSTRACT?????????????????????? THROW THE ABSTRACT METHOD?
-            if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2)&&method.getName().equals(M2.getName()))) {
+        //    if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&implemented.stream().noneMatch(M2 -> methodsHaveSameArguments(method, M2)&&method.getName().equals(M2.getName()))) {
+            if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&(filterByArgumentsTypes(filterByMethodName(method.getName(),implemented),method.getParameterTypes()).size()==0)) {
                 throw new OOPTraitMissingImpl(method);
             }
         }
@@ -78,9 +79,6 @@ public class OOPTraitControl {
 
 
 
-    private void validateAbsImpl(List<Method> absMethods){
-
-    }
 
     private void validateResolvedConflicts(Pair<Method,Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         Method conflictedMethodOne = conflicts.getKey();

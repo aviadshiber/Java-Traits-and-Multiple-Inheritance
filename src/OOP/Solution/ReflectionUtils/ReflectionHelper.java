@@ -541,6 +541,9 @@ public class ReflectionHelper {
         return filteredByName.filter(m -> checkForArgsEquality(m, args)).collect(Collectors.toList());
     }
 
+    public static List<Method> filterByArgumentsTypes(Stream<Method> filteredByName, Class<?>[] otherTypes) {
+        return filteredByName.filter(m -> checkForTypesEquality(m, otherTypes)).collect(Collectors.toList());
+    }
     /**
      * the method if args can be possibly match with the method types (inheritance equality=co-variance equality)
      *
@@ -564,6 +567,26 @@ public class ReflectionHelper {
         }
         return true;
     }
+
+    private static boolean checkForTypesEquality(Method m, Class<?>[] otherTypes) {
+        Class<?>[] types = m.getParameterTypes();
+        if(types==null || otherTypes==null)
+            return types==otherTypes;
+        if (types.length == 0)
+            return otherTypes.length==0;
+
+        if (otherTypes.length != types.length)
+            return false;
+        for (int i = 0; i < types.length; i++) {
+            Class<?> type = types[i];
+            Class<?> otherType = otherTypes[i];
+            if (!type.isAssignableFrom(otherType))
+                return false;
+        }
+        return true;
+    }
+
+
 
     /**
      * the method return all the classes and interfaces until (not include) the Object class.
