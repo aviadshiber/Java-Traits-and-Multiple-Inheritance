@@ -46,6 +46,9 @@ public class OOPMultipleControl {
         Class<?>[] superInterfaces = interfaceClass.getInterfaces();
         List<Method> allMethods;
         for (Class<?> interFace : superInterfaces) {
+            if(!interFace.isAnnotationPresent(typeAnnotation)){
+                throw new OOPBadClass(interFace);
+            }
             allMethods = getAllOurMethods(interFace);
             List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
             if (notAnnotatedMethods.size() > 0)

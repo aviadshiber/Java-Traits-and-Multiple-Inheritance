@@ -43,18 +43,13 @@ public class OOPTraitControl {
         methodToClassMapper = pair.getValue();
         TraitClassMapper(methodToClassMapper);
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
-        List<Method> notAnnotatedMethods = allMethods.stream().filter(M -> !(M.isAnnotationPresent(OOPTraitMethod.class))).collect(Collectors.toList());
-        if (notAnnotatedMethods.size() > 0)
-            throw new OOPBadClass(notAnnotatedMethods.get(0));
-       // List<Class<?>> notAnnotatedClass = allMethods2.stream().map(methodToClassMapper::get).filter(C ->
-        //        C != null && !C.getSimpleName().startsWith(CLASS_NAME_CONVENTION) && !C.isAnnotationPresent(OOPTraitBehaviour.class)
-        //).collect(Collectors.toList());
-        List<Class<?>> notAnnotatedClass = getAllOurTypes(traitCollector).stream().filter(C ->
+
+        /*List<Class<?>> notAnnotatedClass = getAllOurTypes(traitCollector).stream().filter(C ->
                 C != null && !C.getSimpleName().startsWith(CLASS_NAME_CONVENTION) && !C.isAnnotationPresent(OOPTraitBehaviour.class)
-                 ).collect(Collectors.toList());
+        ).collect(Collectors.toList());
         if (notAnnotatedClass.size() > 0) {
             throw new OOPBadClass(notAnnotatedClass.get(0));
-        }
+        }*/
       //  if(overrideConflictCheck()!=null)
       //      throw new OOPTraitConflict(overrideConflictCheck());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
@@ -85,6 +80,9 @@ public class OOPTraitControl {
         Class<?>[] superInterfaces = traitCollector.getInterfaces();
         List<Method> allMethods;
         for (Class<?> interFace : superInterfaces) {
+            if(!interFace.isAnnotationPresent(typeAnnotation)){
+                throw new OOPBadClass(interFace);
+            }
             allMethods = getAllOurMethods(interFace);
             List<Method> notAnnotatedMethods = allMethods.stream().filter(m -> !m.isAnnotationPresent(methodAnnotation)).collect(Collectors.toList());
             if (notAnnotatedMethods.size() > 0)
