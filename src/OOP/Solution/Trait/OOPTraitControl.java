@@ -74,6 +74,7 @@ public class OOPTraitControl {
 
     }
 
+
     private void validateTags(Class<? extends Annotation> typeAnnotation, Class<? extends Annotation> methodAnnotation) throws OOPBadClass {
         Class<?>[] superInterfaces = traitCollector.getInterfaces();
         List<Method> allMethods;
@@ -102,6 +103,8 @@ public class OOPTraitControl {
 
     }
 
+
+
     private void validateResolvedConflicts(Pair<Method,Method> conflicts, Map<Method, Class<?>> classMap) throws OOPTraitConflict {
         Method conflictedMethodOne = conflicts.getKey();
         Method conflictedMethodTwo = conflicts.getValue();
@@ -124,6 +127,7 @@ public class OOPTraitControl {
     public Object invoke(String methodName, Object[] args)
             throws OOPTraitException {
         Logger.log("trying to invoke "+methodName+"with args:"+ Arrays.toString(args));
+
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         int argsLength;
@@ -144,7 +148,7 @@ public class OOPTraitControl {
             }
         }
         Logger.log("candidates:"+candidates);
-       if(candidates.size() == 1){// no conflicts so just invoke
+        if(candidates.size() == 1){// no conflicts so just invoke
             Method toInvoke = candidates.get(0);
             Logger.log("no conflicts, only one candidate, trying to invoke:"+toInvoke);
             return invokeTraitMethod(toInvoke,args);
@@ -155,14 +159,12 @@ public class OOPTraitControl {
 
     }
     private Method findResolver(List<Method> matches, Object[] args){
-        List<Method> resolvers = new ArrayList<>();
         for(Method M2 : traitCollector.getDeclaredMethods()) {
             if (M2.isAnnotationPresent(OOPTraitConflictResolver.class)&&matches.stream().anyMatch(X -> methodToClassMapper.get(X) ==M2.getAnnotation(OOPTraitConflictResolver.class).resolve() || (getClassByConvention(M2.getAnnotation(OOPTraitConflictResolver.class).resolve())
                     !=null)&&methodToClassMapper.get(X) == getClassByConvention(M2.getAnnotation(OOPTraitConflictResolver.class).resolve())) ) {
                 boolean foundResolver = matches.stream().allMatch(M -> (M.getName().equals(M2.getName()) && M.getParameterCount() == M2.getParameterCount() && (checkForTypesEquality(M, M2.getParameterTypes()))));
                 if (foundResolver) {
                     return M2;
-
                 }
             }
         }
@@ -186,13 +188,12 @@ public class OOPTraitControl {
             return invokeTraitMethod(toInvoke, args);
         }
         return null;
-
     }
 
     private Object invokeTraitMethod(Method toInvoke, Object[] args) {
         Class<?> InvokerClass = methodToClassMapper.get(toInvoke);
         Object obj = interfaceToObjectMapper.get(InvokerClass);
-       return  invokeMethod(obj, toInvoke, args);
+        return  invokeMethod(obj, toInvoke, args);
     }
     public List<Method> methodsAbove(Class<?> interfaceStart){
         return methodToClassMapper.keySet().stream().filter(M -> getAllOurTypes(interfaceStart).contains(methodToClassMapper.get(M))).collect(Collectors.toList());
@@ -204,11 +205,11 @@ public class OOPTraitControl {
         for(Method M:implemented){
             List<Method> above = methodsAbove(methodToClassMapper.get(M));
             List<Method> aboveImplemented = above.stream().filter(M2 -> isAnnotatedBy(M2, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
-           for(Method M2:aboveImplemented) {
-               if (M2.getName().equals(M.getName()) && methodsHaveSameArguments(M, M2)) {
-                   return M;
-               }
-           }
+            for(Method M2:aboveImplemented) {
+                if (M2.getName().equals(M.getName()) && methodsHaveSameArguments(M, M2)) {
+                    return M;
+                }
+            }
         }
         return null;
     }
