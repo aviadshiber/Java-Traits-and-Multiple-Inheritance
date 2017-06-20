@@ -44,10 +44,19 @@ public class OOPTraitControl {
         TraitClassMapper(methodToClassMapper);
         List<Method> allMethods = new ArrayList<>(methodToClassMapper.keySet());
         List<Method> implemented = allMethods.stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+        List<Method> TraitMethods = getAllOurMethods(traitCollector).stream().filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
         for (Method method : allMethods) {
             //DOES IT HAVE TO BE ABSTRACT?????????????????????? THROW THE ABSTRACT METHOD?
-            if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&(filterByArgumentsTypes(filterByMethodName(method.getName(),implemented),method.getParameterTypes()).size()==0)) {
-                throw new OOPTraitMissingImpl(method);
+            if (isAnnotatedBy(method,OOPTraitMethod.class,OOPTraitMethodModifier.INTER_ABS)&&(filterByArgumentsTypes(filterByMethodName(method.getName(),TraitMethods),method.getParameterTypes()).size()==0)) {
+                Class<?> claz = getClassByConvention(methodToClassMapper.get(method));
+                List<Method> clazImplMethods = null;
+                if(claz !=null)
+                    clazImplMethods = Arrays.stream(claz.getDeclaredMethods()).filter(M -> isAnnotatedBy(M, OOPTraitMethod.class, OOPTraitMethodModifier.INTER_IMPL)).collect(Collectors.toList());
+                if(claz==null)
+                    throw new OOPTraitMissingImpl(method);
+                if(!filterByMethodName(method.getName(),clazImplMethods).anyMatch(M -> methodsHaveSameArguments(M,method))){
+                    throw new OOPTraitMissingImpl(method);
+                }
             }
         }
         for (Method method : allMethods) {

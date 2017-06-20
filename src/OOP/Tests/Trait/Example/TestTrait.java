@@ -797,7 +797,7 @@ public class TestTrait {
     @Test
     public void testOOPElevator() {
         //********************************************LEVEL 5 :)*******************************************************/
-        Assert.assertTrue(testOOPElevatorSynchronized());
+//        Assert.assertTrue(testOOPElevatorSynchronized());
         Assert.assertTrue(testOOPElevatorUnsynchronized());
         //********************************************LEVEL 5 :)*******************************************************/
 
@@ -806,8 +806,8 @@ public class TestTrait {
     @Test
     public void testOOPVoidReturnsNull() {
         //********************************************LEVEL 6 :)*******************************************************/
-//        Assert.assertTrue(testOOPConflictGladiatorVictorious());
-        //       Assert.assertTrue(testOOPConflictGladiatorTie());
+                Assert.assertTrue(testOOPConflictGladiatorVictorious());
+               Assert.assertTrue(testOOPConflictGladiatorTie());
         //********************************************LEVEL 6 :)*******************************************************/
 
 
